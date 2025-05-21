@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import AppBar from '../src/components/layout/AppBar';
 import ActionCard from '../src/components/stock/ActionCard';
 import ActivityItem from '../src/components/stock/ActivityItem';
+import BottomNavigation from '../src/components/layout/BottomNavigation';
 
 export const HomeScreen = () => {
   const theme = useTheme();
@@ -32,11 +33,12 @@ export const HomeScreen = () => {
           title="Goods Receiving"
           buttonTitle="New Inbound"
           buttonColor={theme.colors.inbound}
-          icon="ArrowDownwardIcon"
+          icon="arrow-downward"
           recentTitle="Recent Supplier"
           recentValue="Apple Inc."
           recentTime="1 hour ago"
           onPress={() => navigation.navigate('NewInbound')}
+          color = "green"
         />
         
         <ActionCard
@@ -48,6 +50,7 @@ export const HomeScreen = () => {
           recentValue="TechCorp"
           recentTime="30 minutes ago"
           onPress={() => navigation.navigate('NewOutbound')}
+          color="red"
         />
         
         <ActionCard
@@ -59,6 +62,7 @@ export const HomeScreen = () => {
           recentValue="Warehouse A → B"
           recentTime="3 hours ago"
           onPress={() => navigation.navigate('NewTransfer')}
+          color="orange"
         />
         
         <Text style={styles.sectionTitle}>Recent Activity</Text>
@@ -92,6 +96,7 @@ export const HomeScreen = () => {
           View All Activity
         </Button>
       </ScrollView>
+      <BottomNavigation/>
     </View>
   );
 };

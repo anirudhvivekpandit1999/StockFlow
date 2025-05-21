@@ -1,9 +1,8 @@
-import Icon from '@react-native-vector-icons/material-design-icons';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Card, Title, Caption } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
-// or any other supported icon set
 
 
 
@@ -16,7 +15,8 @@ const ActionCard = ({
   recentValue,
   recentTime,
   onPress,
-  icon
+  icon,
+  color
 }) => {
   return (
     <Card style={styles.card}>
@@ -27,7 +27,7 @@ const ActionCard = ({
             style={[styles.button, { backgroundColor: buttonColor }]}
             onPress={onPress}
           >
-            {icon && <Icon name="arrow-down" size={20} color="green" style={styles.buttonIcon}/>}
+            {icon && <Icon name={icon} size={24} color={color} style={styles.buttonIcon}/>}
             <Text style={styles.buttonText}>{buttonTitle}</Text>
           </TouchableOpacity>
           <View style={styles.infoContainer}>
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonText: {
-    color: 'white',
+    color: '#5f6368',
     fontWeight: '500',
   },
   buttonIcon: {
