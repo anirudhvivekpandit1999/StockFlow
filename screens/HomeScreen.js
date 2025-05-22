@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { Text, Button, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
@@ -7,20 +7,26 @@ import AppBar from '../src/components/layout/AppBar';
 import ActionCard from '../src/components/stock/ActionCard';
 import ActivityItem from '../src/components/stock/ActivityItem';
 import BottomNavigation from '../src/components/layout/BottomNavigation';
+import SideBar from '../src/components/common/SideBar';
 
 export const HomeScreen = () => {
   const theme = useTheme();
   const navigation = useNavigation();
-
+  const [showSidebar, setShowSidebar] = useState(false);
+  function toggleSideBar() {
+    setShowSidebar(true)
+  } function closeSidebar() {
+    setShowSidebar(false)
+  }
   return (
     <View style={styles.container}>
-      <AppBar 
-        title="Stock Flow" 
-        onMenuPress={() => navigation.openDrawer()}
-        actions={[{ icon: 'magnify', onPress: () => navigation.navigate('Search') }]} 
+      <AppBar
+        title="Stock Flow"
+        onMenuPress={() => toggleSideBar()}
+      // actions={[{ icon: 'magnify', onPress: () => navigation.navigate('Search') }]} 
       />
-      
-      <ScrollView 
+      {showSidebar && <SideBar onClose={closeSidebar} />}
+      <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
@@ -38,9 +44,9 @@ export const HomeScreen = () => {
           recentValue="Apple Inc."
           recentTime="1 hour ago"
           onPress={() => navigation.navigate('NewInbound')}
-          color = "green"
+          color="green"
         />
-        
+
         <ActionCard
           title="Goods Dispatch"
           buttonTitle="New Outbound"
@@ -52,7 +58,7 @@ export const HomeScreen = () => {
           onPress={() => navigation.navigate('NewOutbound')}
           color="red"
         />
-        
+
         <ActionCard
           title="Stock Movement"
           buttonTitle="Transfer"
@@ -64,9 +70,9 @@ export const HomeScreen = () => {
           onPress={() => navigation.navigate('NewTransfer')}
           color="orange"
         />
-        
+
         <Text style={styles.sectionTitle}>Recent Activity</Text>
-        
+
         <ActivityItem
           type="inbound"
           title="Inbound: Apple Inc."
@@ -76,7 +82,7 @@ export const HomeScreen = () => {
           iconColor={theme.colors.inbound}
           iconBgColor="#e8f0fe"
         />
-        
+
         <ActivityItem
           type="outbound"
           title="Outbound: TechCorp"
@@ -86,9 +92,9 @@ export const HomeScreen = () => {
           iconColor={theme.colors.outbound}
           iconBgColor="#fce8e6"
         />
-        
-        <Button 
-          mode="outlined" 
+
+        <Button
+          mode="outlined"
           onPress={() => navigation.navigate('AllActivity')}
           style={styles.viewAllButton}
           labelStyle={{ color: theme.colors.accent }}
@@ -96,7 +102,7 @@ export const HomeScreen = () => {
           View All Activity
         </Button>
       </ScrollView>
-      <BottomNavigation/>
+      <BottomNavigation />
     </View>
   );
 };
