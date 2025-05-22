@@ -31,7 +31,7 @@ const BottomNavigation = () => {
       key: 4,
       icon: 'menu',
       onPress: () => {
-        // Implement menu action
+        ()=> {}
       },
     },
   ];
