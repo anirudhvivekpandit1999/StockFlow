@@ -1,11 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TextInput, HelperText } from 'react-native-paper';
 import { useField } from 'formik';
 
-const FormField = ({ name, label, x , ...props }) => {
+const FormFieldNav = ({ name, label, value ,x ,...props }) => {
   const [field, meta, helpers] = useField(name);
-  
+  const value1 = "C700000000228001544"
+  useEffect(() => {
+    if (value1 === value) {
+      helpers.setValue("Device");
+    } else {
+      helpers.setValue("");
+    }
+  }, [value]);
   return (
     <View style={styles.container}>
       <TextInput
@@ -37,4 +44,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FormField;
+export default FormFieldNav;

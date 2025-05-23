@@ -4,6 +4,9 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import {HomeScreen} from './screens/HomeScreen';  
+import ReceivedOrders from './screens/RecievedOrders';
+import DispatchedOrders from './screens/DispatchedOrders';
+import AllActivity from './screens/AllActivity';
 
 const Stack = createStackNavigator();
 export default function App() {
@@ -24,7 +27,18 @@ export default function App() {
             options={{ headerShown: false }}
             
           />
-          
+          <Stack.Screen
+            name="ReceivedOrder"
+            component={ReceivedOrders}
+            options={{headerShown : false}}/>
+            <Stack.Screen
+              name= "DispatchedOrders"
+              component={DispatchedOrders}
+              options={{headerShown : false}}/>
+            <Stack.Screen
+              name='AllActivity'
+              component={AllActivity}
+              options={{headerShown : false}}/>
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>

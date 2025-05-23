@@ -8,28 +8,38 @@ import ActionCard from '../src/components/stock/ActionCard';
 import ActivityItem from '../src/components/stock/ActivityItem';
 import BottomNavigation from '../src/components/layout/BottomNavigation';
 import SideBar from '../src/components/common/SideBar';
+import NewInboundForm from '../src/components/forms/NewInboundForm';
+import NewOutboundForm from '../src/components/forms/NewOutBoundForm';
+import NewTransferForm from '../src/components/forms/NewTransferForm';
 
 export const HomeScreen = () => {
   const theme = useTheme();
   const navigation = useNavigation();
   const [showSidebar, setShowSidebar] = useState(false);
+  const [inboundModal , showInBoundModal] = useState (false);
+  const [outbountModal , showOutBoundModal] = useState(false);
+  const [transferModel , showTransferModel] = useState(false);
   function toggleSideBar() {
     setShowSidebar(true)
   } function closeSidebar() {
     setShowSidebar(false)
   }
   return (
+    
     <View style={styles.container}>
+      
       <AppBar
         title="Stock Flow"
         onMenuPress={() => toggleSideBar()}
       // actions={[{ icon: 'magnify', onPress: () => navigation.navigate('Search') }]} 
       />
       {showSidebar && <SideBar onClose={closeSidebar} />}
+      
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
+        
         <View style={styles.headerCard}>
           <Text style={styles.headerTitle}>Today's Activity</Text>
           <Text style={styles.headerSubtitle}>12 movements • 4 pending</Text>
@@ -43,7 +53,7 @@ export const HomeScreen = () => {
           recentTitle="Recent Supplier"
           recentValue="Apple Inc."
           recentTime="1 hour ago"
-          onPress={() => navigation.navigate('NewInbound')}
+          onPress={() => showInBoundModal(true)}
           color="green"
         />
 
@@ -55,7 +65,7 @@ export const HomeScreen = () => {
           recentTitle="Recent Client"
           recentValue="TechCorp"
           recentTime="30 minutes ago"
-          onPress={() => navigation.navigate('NewOutbound')}
+          onPress={() => showOutBoundModal(true)}
           color="red"
         />
 
@@ -67,7 +77,7 @@ export const HomeScreen = () => {
           recentTitle="Recent Transfer"
           recentValue="Warehouse A → B"
           recentTime="3 hours ago"
-          onPress={() => navigation.navigate('NewTransfer')}
+          onPress={() => showTransferModel(true)}
           color="orange"
         />
 
@@ -102,7 +112,18 @@ export const HomeScreen = () => {
           View All Activity
         </Button>
       </ScrollView>
-      <BottomNavigation />
+      <BottomNavigation
+        onOpen={toggleSideBar} />
+        {inboundModal && <NewInboundForm 
+      onDismiss={()=>showInBoundModal(false)}/>}
+      {
+        outbountModal && <NewOutboundForm
+        onDismiss={ () => showOutBoundModal(false)}/>
+      }
+      {
+        transferModel && <NewTransferForm
+        onDismiss={()=> showTransferModel(false)}/>
+      }
     </View>
   );
 };

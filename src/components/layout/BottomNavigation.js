@@ -1,38 +1,38 @@
+import { useNavigation } from '@react-navigation/native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const BottomNavigation = () => {
+const BottomNavigation = ({onOpen}) => {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
 
   const actions = [
     {
       key: 1,
       icon: 'home',
       onPress: () => {
-        navigate.navigate('Home');
+        navigation.navigate('Home');
       },
     },
     {
       key: 2,
       icon: 'arrow-down-bold',
       onPress: () => {
-        navigate.navigate('ReceivedOrders');
+        navigation.navigate('ReceivedOrder');
       },
     },
     {
       key: 3,
       icon: 'arrow-up-bold',
       onPress: () => {
-        navigate.navigate('DispatchedOrders');
+        navigation.navigate('DispatchedOrders');
       },
     },
     {
       key: 4,
       icon: 'menu',
-      onPress: () => {
-        ()=> {}
-      },
+      onPress: onOpen
     },
   ];
 
