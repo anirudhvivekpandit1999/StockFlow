@@ -1,18 +1,27 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import { TextInput, HelperText } from 'react-native-paper';
 import { useField } from 'formik';
+import apiServices from '../../services/apiServices';
 
 const FormFieldNav = ({ name, label, value ,x ,...props }) => {
   const [field, meta, helpers] = useField(name);
-  const value1 = "C700000000228001544"
+  
   useEffect(() => {
-    if (value1 === value) {
-      helpers.setValue("Device");
-    } else {
-      helpers.setValue("");
-    }
+    fetchProductName();
   }, [value]);
+  const fetchProductName = async()=>{
+    var result = await apiServices.getProductName(value);
+    console.log(JSON.parse(result[0].Data))
+    if(result[0].Status === 200){
+      helpers.setValue(JSON.parse(result[0].Data).ProductName);
+      Alert.alert(result[0].Message);
+    }
+    else{
+      helpers.setValue("");
+      Alert.alert(result[0].Message);
+    }
+  }
   return (
     <View 
     style={styles.container}>

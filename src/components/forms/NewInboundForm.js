@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Modal, PaperProvider, Portal, Button, Text, useTheme } from "react-native-paper";
-import { View, StyleSheet, useWindowDimensions } from "react-native";
+import { View, StyleSheet, useWindowDimensions, Alert } from "react-native";
 import { Formik } from "formik";
 import FormField from "./FormField";
 import { ScrollView } from "react-native-gesture-handler";
+import apiServices from "../../services/apiServices";
 
 const initialValues = {
   serialNumber: "",
@@ -42,6 +43,9 @@ const NewInboundForm = ({ onDismiss }) => {
               StockStatus: 'Recieved'
             });
             console.log("result", result);
+            const data = result[0];
+            console.log("data",data);
+            Alert.alert(data.Message);
           }
           onDismiss();
         }}

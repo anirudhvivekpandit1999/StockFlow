@@ -28,7 +28,7 @@ export default function App() {
             
           />
           <Stack.Screen
-            name="ReceivedOrder"
+            name="RecievedOrder"
             component={ReceivedOrders}
             options={{headerShown : false}}/>
             <Stack.Screen

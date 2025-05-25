@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { Text, Button, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
@@ -11,6 +11,8 @@ import SideBar from '../src/components/common/SideBar';
 import NewInboundForm from '../src/components/forms/NewInboundForm';
 import NewOutboundForm from '../src/components/forms/NewOutBoundForm';
 import NewTransferForm from '../src/components/forms/NewTransferForm';
+import { callStoredProcedure } from '../src/services/procedureService';
+import apiServices from '../src/services/apiServices';
 
 export const HomeScreen = () => {
   const theme = useTheme();
@@ -19,6 +21,15 @@ export const HomeScreen = () => {
   const [inboundModal , showInBoundModal] = useState (false);
   const [outbountModal , showOutBoundModal] = useState(false);
   const [transferModel , showTransferModel] = useState(false);
+  const [stockFlowData , setStockFlowData] = useState({})
+  useEffect(()=>{
+    fetchStockFlowData()
+  },[])
+  const fetchStockFlowData = async  () => {
+    var result = await apiServices.getStockFlowData();
+    console.log(JSON.parse(result[0].Data).Top2Activities);
+    setStockFlowData(JSON.parse(result[0].Data));
+  }
   function toggleSideBar() {
     setShowSidebar(true)
   } function closeSidebar() {
@@ -47,7 +58,7 @@ export const HomeScreen = () => {
           <Text 
           style={styles.headerTitle}>Today's Activity</Text>
           <Text 
-          style={styles.headerSubtitle}>12 movements • 4 pending</Text>
+          style={styles.headerSubtitle}>{stockFlowData.Recieved} Recieved • {stockFlowData.Dispatched} Dispatched</Text>
         </View>
 
         <ActionCard
@@ -56,8 +67,8 @@ export const HomeScreen = () => {
           buttonColor={theme.colors.inbound}
           icon="arrow-downward"
           recentTitle="Recent Supplier"
-          recentValue="Apple Inc."
-          recentTime="1 hour ago"
+          recentValue={stockFlowData.RecentSupplier}
+          recentTime={stockFlowData.RecentSupplyTime}
           onPress={() => showInBoundModal(true)}
           color="green"
         />
@@ -68,8 +79,8 @@ export const HomeScreen = () => {
           buttonColor={theme.colors.outbound}
           icon="arrow-upward"
           recentTitle="Recent Client"
-          recentValue="TechCorp"
-          recentTime="30 minutes ago"
+          recentValue={stockFlowData.RecentDispatcher}
+          recentTime={stockFlowData.RecentDispatchTime}
           onPress={() => showOutBoundModal(true)}
           color="red"
         />
@@ -80,8 +91,8 @@ export const HomeScreen = () => {
           buttonColor={theme.colors.transfer}
           icon="swap-horiz"
           recentTitle="Recent Transfer"
-          recentValue="Warehouse A → B"
-          recentTime="3 hours ago"
+          recentValue={stockFlowData.RecentTransfer}
+          recentTime={stockFlowData.RecentTransferTime}
           onPress={() => showTransferModel(true)}
           color="orange"
         />
@@ -89,25 +100,52 @@ export const HomeScreen = () => {
         <Text 
         style={styles.sectionTitle}>Recent Activity</Text>
 
-        <ActivityItem
-          type="inbound"
-          title="Inbound: Apple Inc."
-          details="235 MacBook Pro - Section A-15"
-          time="1h ago"
-          iconName="arrow-downward"
-          iconColor={theme.colors.inbound}
-          iconBgColor="#e8f0fe"
-        />
+         {stockFlowData.Top2Activities?.filter(
+   t => t.StockStatus === 'Received'
+ ).map((t,index) => (
+   <ActivityItem
+   key={index}
+      // Always add a unique key when mapping over lists
+     type="inbound"
+     title={`Inbound: ${t.Name}`}
+     details={`${t.Count} - ${t.Location}`}
+     time={t.TimeAgo}
+     iconName="arrow-downward"
+     iconColor={theme.colors.inbound}
+     iconBgColor="#e8f0fe"
+   />
+ ))} 
 
-        <ActivityItem
-          type="outbound"
-          title="Outbound: TechCorp"
-          details="54 Monitors - Section C-09"
-          time="30m ago"
-          iconName="arrow-upward"
-          iconColor={theme.colors.outbound}
-          iconBgColor="#fce8e6"
-        />
+        {stockFlowData.Top2Activities?.filter(
+   t => t.StockStatus === 'Dispatched'
+ ).map((t,index )=> (
+   <ActivityItem
+   key={index}
+      // Always add a unique key when mapping over lists
+     type="dispatched"
+     title={`Dispatched: ${t.Name}`}
+     details={`${t.Count} - ${t.Location}`}
+     time={t.TimeAgo}
+     iconName="arrow-upward"
+     iconColor={theme.colors.outbound}
+     iconBgColor="#fce8e6"
+   />
+ ))} 
+ {stockFlowData.Top2Activities?.filter(
+   t => t.StockStatus === 'Transferred'
+ ).map((t,index) => (
+   <ActivityItem
+   key={index}
+      // Always add a unique key when mapping over lists
+     type="transferred"
+     title={`Transferred: ${t.Name}`}
+     details={`${t.Count} - ${t.Location}`}
+     time={t.TimeAgo}
+     iconName="swap-horiz"
+     iconColor={theme.colors.inbound}
+     iconBgColor="orange"
+   />
+ ))} 
 
         <Button
           mode="outlined"

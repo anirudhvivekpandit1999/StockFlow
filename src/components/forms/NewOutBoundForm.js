@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Modal, PaperProvider, Portal, Button, Text, useTheme } from "react-native-paper";
-import { View, StyleSheet, useWindowDimensions } from "react-native";
+import { View, StyleSheet, useWindowDimensions, Alert } from "react-native";
 import { Formik } from "formik";
 import FormField from "./FormField";
 import { ScrollView } from "react-native-gesture-handler";
 import FormFieldNav from "./FormFieldNav";
+import apiServices from "../../services/apiServices";
 
 const initialValues = {
   serialNumber: "",
@@ -32,8 +33,19 @@ const NewOutboundForm = ({ onDismiss }) => {
         <Formik
         
           initialValues={initialValues}
-          onSubmit={values => {
+          onSubmit={async values => {
             console.log(values);
+            {
+              var result = await apiServices.addNewForm({
+                ProductSerialNumber : values.serialNumber ,
+                ProductName : values.productName,
+                Count : values.count ,
+                Name : values.client ,
+                Location : values.location ,
+                StockStatus : 'Dispatched'
+              })
+              Alert.alert(result[0].Message);
+            }
             onDismiss();
           }}
         >

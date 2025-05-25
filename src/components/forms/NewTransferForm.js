@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { Modal, PaperProvider, Portal, Button, Text, useTheme, Drawer, Menu } from "react-native-paper";
-import { View, StyleSheet, useWindowDimensions } from "react-native";
+import { View, StyleSheet, useWindowDimensions, Alert } from "react-native";
 import { Formik } from "formik";
 import FormField from "./FormField";
 import { ScrollView } from "react-native-gesture-handler";
 import FormFieldNav from "./FormFieldNav";
 import { Picker } from "@react-native-picker/picker";
+import apiServices from "../../services/apiServices";
 
 const initialValues = {
   serialNumber: "",
@@ -33,8 +34,19 @@ const [deptMenuVisible, setDeptMenuVisible] = useState(false);
         <Formik
         
           initialValues={initialValues}
-          onSubmit={values => {
+          onSubmit={async values => {
             console.log(values);
+            {
+              var result = await apiServices.addNewForm({
+                ProductSerialNumber : values.serialNumber ,
+                ProductName : values.productName, 
+                Count : values.count ,
+                Name : values.department ,
+                Location : values.location ,
+                StockStatus : 'Transferred'
+              })
+              Alert.alert(result[0].Message);
+            }
             onDismiss();
           }}
         >

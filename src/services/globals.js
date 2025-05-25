@@ -3,3 +3,4 @@ export const stockInAndOutInboundOutboundMovementController = 'StockInAndOutInbo
 export const addNewFormEndpoint = 'AddNewForm';
 export const getStockFlowDataEndpoint = 'GetStockFlowData';
 export const getSideBarDataEndpoint = 'GetSideBarData';
+export const getProductNameEndpoint = 'GetProductName';

@@ -26,7 +26,7 @@ const AllActivity = () => {
 
 
             <Text>
-                Received Orders Screen
+                All Activity Screen
 
             </Text>
 
