@@ -4,8 +4,6 @@ import { View, StyleSheet, useWindowDimensions } from "react-native";
 import { Formik } from "formik";
 import FormField from "./FormField";
 import { ScrollView } from "react-native-gesture-handler";
-import { callStoredProcedure } from "../../services/procedureService";
-import apiServices from "../../services/apiServices";
 
 const initialValues = {
   serialNumber: "",
@@ -14,12 +12,12 @@ const initialValues = {
 };
 
 const NewInboundForm = ({ onDismiss }) => {
- 
+
   const { width } = useWindowDimensions();
   const theme = useTheme();
   return (
     <Modal
-    
+
       visible={true}
       onDismiss={onDismiss}
       dismissable={true}
@@ -29,74 +27,66 @@ const NewInboundForm = ({ onDismiss }) => {
       ]}
       style={{ zIndex: 9999, elevation: 99 }}
     >
-        <Formik
-    initialValues={initialValues}
-    onSubmit={async values => {
-        var result = await apiServices.addNewForm({
-            ProductSerialNumber: values.serialNumber,
-            ProductName: values.productName,
-            Count: values.count,
-            Name: values.Supplier,
-            Location: values.location,
-            StockStatus : 'Recieved'
-        });
-        console.log("result", result);
-    }}
->
+      <Formik
 
-          {({ handleSubmit }) => (
-            <ScrollView 
-            style={styles.formContainer}
-            showsVerticalScrollIndicator = {false}>
-                <Text 
-                style={{
-                color : theme.colors.primary,
-                fontWeight : "bold",
-                textAlign : "center",
-                fontSize : 20
-                }}> 
-                New Inbound Form
-                </Text>
-              <FormField 
-              name="serialNumber" 
-              label="Product Serial Number" 
-              x = "0" />
-              <FormField 
-              name="productName" 
-              label="Product Name" 
-              x = "0"/>
-              <FormField 
-              name="count" 
-              label="Count" 
-              x="1"/>
-              <FormField
-              name = "Supplier"
-              label = "Supplier"/>
-              <FormField 
+        initialValues={initialValues}
+        onSubmit={async values => {
+          console.log(values);
+          {
+            var result = await apiServices.addNewForm({
+              ProductSerialNumber: values.serialNumber,
+              ProductName: values.productName,
+              Count: values.count,
+              Name: values.Supplier,
+              Location: values.location,
+              StockStatus: 'Recieved'
+            });
+            console.log("result", result);
+          }
+          onDismiss();
+        }}
+      >
+        {({ handleSubmit }) => (
+          <ScrollView style={styles.formContainer}
+            showsVerticalScrollIndicator={false}>
+            <Text style={{
+              color: theme.colors.primary,
+              fontWeight: "bold",
+              textAlign: "center",
+              fontSize: 20
+            }}>
+              New Inbound Form
+            </Text>
+            <FormField name="serialNumber" label="Product Serial Number" x="0" />
+            <FormField name="productName" label="Product Name" x="0" />
+            <FormField name="count" label="Count" x="1" />
+            <FormField
+              name="Supplier"
+              label="Supplier" />
+            <FormField
               name="location"
-              label="Location"/>
-              <View 
-              style={styles.buttonContainer}>
-                <Button 
-                  mode="outlined" 
-                  onPress={onDismiss}
-                  style={styles.button}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  mode="contained" 
-                  onPress={handleSubmit}
-                  style={styles.button}
-                >
-                  Submit
-                </Button>
-              </View>
-            </ScrollView>
-          )}
-        </Formik>
-      </Modal>
-    
+              label="Location" />
+            <View style={styles.buttonContainer}>
+              <Button
+                mode="outlined"
+                onPress={onDismiss}
+                style={styles.button}
+              >
+                Cancel
+              </Button>
+              <Button
+                mode="contained"
+                onPress={handleSubmit}
+                style={styles.button}
+              >
+                Submit
+              </Button>
+            </View>
+          </ScrollView>
+        )}
+      </Formik>
+    </Modal>
+
   );
 };
 
@@ -111,7 +101,7 @@ const styles = StyleSheet.create({
     maxHeight: '80%',
   },
   formContainer: {
-    gap: 12, 
+    gap: 12,
   },
   buttonContainer: {
     flexDirection: 'row',
