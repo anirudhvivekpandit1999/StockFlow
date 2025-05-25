@@ -4,6 +4,8 @@ import { View, StyleSheet, useWindowDimensions } from "react-native";
 import { Formik } from "formik";
 import FormField from "./FormField";
 import { ScrollView } from "react-native-gesture-handler";
+import { callStoredProcedure } from "../../services/procedureService";
+import apiServices from "../../services/apiServices";
 
 const initialValues = {
   serialNumber: "",
@@ -28,17 +30,26 @@ const NewInboundForm = ({ onDismiss }) => {
       style={{ zIndex: 9999, elevation: 99 }}
     >
         <Formik
-        
-          initialValues={initialValues}
-          onSubmit={values => {
-            console.log(values);
-            onDismiss();
-          }}
-        >
+    initialValues={initialValues}
+    onSubmit={async values => {
+        var result = await apiServices.addNewForm({
+            ProductSerialNumber: values.serialNumber,
+            ProductName: values.productName,
+            Count: values.count,
+            Name: values.Supplier,
+            Location: values.location,
+            StockStatus : 'Recieved'
+        });
+        console.log("result", result);
+    }}
+>
+
           {({ handleSubmit }) => (
-            <ScrollView style={styles.formContainer}
+            <ScrollView 
+            style={styles.formContainer}
             showsVerticalScrollIndicator = {false}>
-                <Text style={{
+                <Text 
+                style={{
                 color : theme.colors.primary,
                 fontWeight : "bold",
                 textAlign : "center",
@@ -46,16 +57,26 @@ const NewInboundForm = ({ onDismiss }) => {
                 }}> 
                 New Inbound Form
                 </Text>
-              <FormField name="serialNumber" label="Product Serial Number" x = "0" />
-              <FormField name="productName" label="Product Name" x = "0"/>
-              <FormField name="count" label="Count" x="1"/>
+              <FormField 
+              name="serialNumber" 
+              label="Product Serial Number" 
+              x = "0" />
+              <FormField 
+              name="productName" 
+              label="Product Name" 
+              x = "0"/>
+              <FormField 
+              name="count" 
+              label="Count" 
+              x="1"/>
               <FormField
               name = "Supplier"
               label = "Supplier"/>
               <FormField 
               name="location"
               label="Location"/>
-              <View style={styles.buttonContainer}>
+              <View 
+              style={styles.buttonContainer}>
                 <Button 
                   mode="outlined" 
                   onPress={onDismiss}

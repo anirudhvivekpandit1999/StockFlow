@@ -39,9 +39,11 @@ const [deptMenuVisible, setDeptMenuVisible] = useState(false);
           }}
         >
           {({ handleSubmit ,values, setFieldValue}) => (
-            <ScrollView style={styles.formContainer}
+            <ScrollView 
+            style={styles.formContainer}
             showsVerticalScrollIndicator = {false}>
-                <Text style={{
+                <Text 
+                style={{
                 color : theme.colors.primary,
                 fontWeight : "bold",
                 textAlign : "center",
@@ -49,11 +51,29 @@ const [deptMenuVisible, setDeptMenuVisible] = useState(false);
                 }}> 
                 Transfer Form
                 </Text>
-              <FormField name="serialNumber" label="Product Serial Number" x="0" />
-              <FormFieldNav name="productName" label="Product Name" value={values.serialNumber} x= "0"/>
-              <FormField name="count" label="Count" x="1"/>
-             <Text style={{ marginTop: 12, marginBottom: 4 }}>Department</Text>
-      <View style={{ borderWidth: 1, borderColor: '#ccc', borderRadius: 6, marginBottom: 12 }}>
+              <FormField 
+              name="serialNumber" 
+              label="Product Serial Number" 
+              x="0" />
+              <FormFieldNav 
+              name="productName" 
+              label="Product Name" 
+              value={values.serialNumber} 
+              x= "0"/>
+              <FormField 
+              name="count" 
+              label="Count" 
+              x="1"/>
+             <Text 
+             style={{ 
+              marginTop: 12, 
+              marginBottom: 4 }}>Department</Text>
+      <View 
+      style={{ 
+        borderWidth: 1, 
+        borderColor: '#ccc', 
+        borderRadius: 6, 
+        marginBottom: 12 }}>
         <Picker
           selectedValue={values.department}
           onValueChange={itemValue => setFieldValue('department', itemValue)}

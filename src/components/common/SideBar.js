@@ -27,22 +27,31 @@ const SideBar = ({ onClose }) => {
             }
       ]
       return (
-            <View style={styles.overlay}>
-                  <View style={styles.sidebar}>
-                        <Text style={[styles.title, {
+            <View 
+            style={styles.overlay}>
+                  <View 
+                  style={styles.sidebar}>
+                        <Text 
+                        style={[styles.title, {
                               color: theme.colors.primary
                         }]}>StockFlow</Text>
                         {
                               sideBarData.map((side) => (
-                                    <TouchableOpacity style={styles.item} onPress={() => navigateTo(side.navigate)} key={side.menuText}>
-                                          <Text style={styles.itemText}>{side.menuText}</Text>
+                                    <TouchableOpacity 
+                                    style={styles.item} 
+                                    onPress={() => navigateTo(side.navigate)} 
+                                    key={side.menuText}>
+                                          <Text 
+                                          style={styles.itemText}>{side.menuText}</Text>
                                     </TouchableOpacity>
                               ))
                         }
 
 
                   </View>
-                  <TouchableOpacity style={styles.background} onPress={onClose} />
+                  <TouchableOpacity 
+                  style={styles.background} 
+                  onPress={onClose} />
             </View>
       );
 };

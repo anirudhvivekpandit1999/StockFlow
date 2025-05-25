@@ -48,16 +48,27 @@ const NewOutboundForm = ({ onDismiss }) => {
                 }}> 
                 New Dispatch Form
                 </Text>
-              <FormField name="serialNumber" label="Product Serial Number" x= "0" />
-              <FormFieldNav name="productName" label="Product Name" value={values.serialNumber} x="0" />
-              <FormField name="count" label="Count"  x="1"/>
+              <FormField 
+              name="serialNumber" 
+              label="Product Serial Number" 
+              x= "0" />
+              <FormFieldNav 
+              name="productName" 
+              label="Product Name" 
+              value={values.serialNumber} 
+              x="0" />
+              <FormField 
+              name="count" 
+              label="Count"  
+              x="1"/>
               <FormField
               name = "client"
               label = "Client"/>
               <FormField 
               name="location"
               label="Location"/>
-              <View style={styles.buttonContainer}>
+              <View 
+              style={styles.buttonContainer}>
                 <Button 
                   mode="outlined" 
                   onPress={onDismiss}

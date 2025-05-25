@@ -18,7 +18,8 @@ const DispatchedOrders = () => {
         <AppBar
             title = "Stock Flow"
             onMenuPress={()=>toggleSideBar()}/>
-            {sideBar && <SideBar onClose={onClose}/>}
+            {sideBar && <SideBar 
+            onClose={onClose}/>}
         <ScrollView>
             <Text>
                 This is Dispatched Orders Page

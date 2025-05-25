@@ -51,7 +51,9 @@ const BottomNavigation = ({onOpen}) => {
         <Appbar.Action
           key={action.key}
           icon={action.icon}
-          onPress={action.onPress}
+          onPress={() => {
+        navigation.navigate(action.onPress);
+      }}
           color="white"
         />
       ))}

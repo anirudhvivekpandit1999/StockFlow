@@ -14,7 +14,8 @@ const FormFieldNav = ({ name, label, value ,x ,...props }) => {
     }
   }, [value]);
   return (
-    <View style={styles.container}>
+    <View 
+    style={styles.container}>
       <TextInput
         label={label}
         value={field.value}
@@ -27,7 +28,9 @@ const FormFieldNav = ({ name, label, value ,x ,...props }) => {
         {...props}
       />
       {meta.touched && meta.error && (
-        <HelperText type="error" visible={meta.touched && meta.error}>
+        <HelperText 
+        type="error" 
+        visible={meta.touched && meta.error}>
           {meta.error}
         </HelperText>
       )}

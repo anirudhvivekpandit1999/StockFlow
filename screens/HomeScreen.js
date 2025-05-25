@@ -26,23 +26,28 @@ export const HomeScreen = () => {
   }
   return (
     
-    <View style={styles.container}>
+    <View 
+    style={styles.container}>
       
       <AppBar
         title="Stock Flow"
         onMenuPress={() => toggleSideBar()}
       // actions={[{ icon: 'magnify', onPress: () => navigation.navigate('Search') }]} 
       />
-      {showSidebar && <SideBar onClose={closeSidebar} />}
+      {showSidebar && <SideBar 
+      onClose={closeSidebar} />}
       
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
         
-        <View style={styles.headerCard}>
-          <Text style={styles.headerTitle}>Today's Activity</Text>
-          <Text style={styles.headerSubtitle}>12 movements • 4 pending</Text>
+        <View 
+        style={styles.headerCard}>
+          <Text 
+          style={styles.headerTitle}>Today's Activity</Text>
+          <Text 
+          style={styles.headerSubtitle}>12 movements • 4 pending</Text>
         </View>
 
         <ActionCard
@@ -81,7 +86,8 @@ export const HomeScreen = () => {
           color="orange"
         />
 
-        <Text style={styles.sectionTitle}>Recent Activity</Text>
+        <Text 
+        style={styles.sectionTitle}>Recent Activity</Text>
 
         <ActivityItem
           type="inbound"
