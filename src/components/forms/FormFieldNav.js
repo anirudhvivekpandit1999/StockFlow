@@ -6,22 +6,22 @@ import apiServices from '../../services/apiServices';
 
 const FormFieldNav = ({ name, label, value ,x ,...props }) => {
   const [field, meta, helpers] = useField(name);
-  
-  useEffect(() => {
-    fetchProductName();
-  }, [value]);
-  const fetchProductName = async()=>{
-    var result = await apiServices.getProductName(value);
-    console.log(JSON.parse(result[0].Data))
-    if(result[0].Status === 200){
-      helpers.setValue(JSON.parse(result[0].Data).ProductName);
-      Alert.alert(result[0].Message);
-    }
-    else{
-      helpers.setValue("");
-      Alert.alert(result[0].Message);
-    }
-  }
+  helpers.setValue(value);
+  // useEffect(() => {
+  //   fetchProductName();
+  // }, [value]);
+  // const fetchProductName = async()=>{
+  //   var result = await apiServices.getProductName(value);
+  //   console.log(JSON.parse(result[0].Data))
+  //   if(result[0].Status === 200){
+  //     helpers.setValue(JSON.parse(result[0].Data).ProductName);
+  //     Alert.alert(result[0].Message);
+  //   }
+  //   else{
+  //     helpers.setValue("");
+  //     Alert.alert(result[0].Message);
+  //   }
+  // }
   return (
     <View 
     style={styles.container}>

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Modal, PaperProvider, Portal, Button, Text, useTheme } from "react-native-paper";
+import React, { useEffect } from "react";
+import { Modal, Button, Text, useTheme } from "react-native-paper";
 import { View, StyleSheet, useWindowDimensions, Alert } from "react-native";
 import { Formik } from "formik";
 import FormField from "./FormField";
@@ -11,16 +11,16 @@ const initialValues = {
   serialNumber: "",
   productName: "",
   count: "",
+  client: "",
+  location: ""
 };
 
 const NewOutboundForm = ({ onDismiss }) => {
- 
   const { width } = useWindowDimensions();
   const theme = useTheme();
-    
+
   return (
     <Modal
-    
       visible={true}
       onDismiss={onDismiss}
       dismissable={true}
@@ -30,77 +30,105 @@ const NewOutboundForm = ({ onDismiss }) => {
       ]}
       style={{ zIndex: 9999, elevation: 99 }}
     >
-        <Formik
-        
-          initialValues={initialValues}
-          onSubmit={async values => {
-            console.log(values);
-            {
-              var result = await apiServices.addNewForm({
-                ProductSerialNumber : values.serialNumber ,
-                ProductName : values.productName,
-                Count : values.count ,
-                Name : values.client ,
-                Location : values.location ,
-                StockStatus : 'Dispatched'
-              })
-              Alert.alert(result[0].Message);
-            }
-            onDismiss();
-          }}
-        >
-          {({ handleSubmit ,values }) => (
-            <ScrollView style={styles.formContainer}
-            showsVerticalScrollIndicator = {false}>
-                <Text style={{
-                color : theme.colors.primary,
-                fontWeight : "bold",
-                textAlign : "center",
-                fontSize : 20
-                }}> 
+      <Formik
+        initialValues={initialValues}
+        onSubmit={async values => {
+          var result = await apiServices.addNewForm({
+            ProductSerialNumber: values.serialNumber,
+            ProductName: values.productName,
+            Count: values.count,
+            Name: values.client,
+            Location: values.location,
+            StockStatus: 'Dispatched'
+          });
+          Alert.alert(result[0].Message);
+          onDismiss();
+        }}
+      >
+        {({ handleSubmit, values, setFieldValue }) => {
+          useEffect(() => {
+            let isMounted = true;
+            const fetchAndSetProductName = async () => {
+              if (values.serialNumber) {
+                try {
+                  const response = await apiServices.getProductName({ ProductSerialNumber: values.serialNumber });
+                  console.log("Product Name Response:", JSON.parse(response[0].Data).ProductName);
+                  if (isMounted) {
+                    if (response && response.length > 0) {
+                      setFieldValue('productName', JSON.parse(response[0].Data).ProductName);
+                    } else {
+                      setFieldValue('productName', '');
+                    }
+                  }
+                } catch (error) {
+                  if (isMounted) setFieldValue('productName', '');
+                }
+              } else {
+                if (isMounted) setFieldValue('productName', '');
+              }
+            };
+            fetchAndSetProductName();
+            return () => { isMounted = false; };
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+          }, [values.serialNumber]);
+
+          return (
+            <ScrollView style={styles.formContainer} showsVerticalScrollIndicator={false}>
+              <Text
+                style={{
+                  color: theme.colors.primary,
+                  fontWeight: "bold",
+                  textAlign: "center",
+                  fontSize: 20
+                }}
+              >
                 New Dispatch Form
-                </Text>
-              <FormField 
-              name="serialNumber" 
-              label="Product Serial Number" 
-              x= "0" />
-              <FormFieldNav 
-              name="productName" 
-              label="Product Name" 
-              value={values.serialNumber} 
-              x="0" />
-              <FormField 
-              name="count" 
-              label="Count"  
-              x="1"/>
+              </Text>
               <FormField
-              name = "client"
-              label = "Client"/>
-              <FormField 
-              name="location"
-              label="Location"/>
-              <View 
-              style={styles.buttonContainer}>
-                <Button 
-                  mode="outlined" 
+                name="serialNumber"
+                label="Product Serial Number"
+                x="0"
+              />
+              <FormField
+                name="productName"
+                label="Product Name"
+                
+                x="0"
+              />
+              <FormField
+                name="count"
+                label="Count"
+                x="1"
+              />
+              <FormField
+                name="client"
+                label="Client"
+              />
+              <FormField
+                name="location"
+                label="Location"
+              />
+              <View style={styles.buttonContainer}>
+                <Button
+                  mode="outlined"
                   onPress={onDismiss}
                   style={styles.button}
                 >
-                  Cancel
+                  <Text>Cancel</Text>
                 </Button>
-                <Button 
-                  mode="contained" 
+                <Button
+                  mode="contained"
                   onPress={handleSubmit}
                   style={styles.button}
                 >
-                  Submit
+                  <Text>Submit</Text>
                 </Button>
               </View>
             </ScrollView>
-          )}
-        </Formik>
-      </Modal>
-    
+          );
+        }}
+      </Formik>
+    </Modal>
   );
 };
 
@@ -115,7 +143,7 @@ const styles = StyleSheet.create({
     maxHeight: '80%',
   },
   formContainer: {
-    gap: 12, 
+    gap: 12,
   },
   buttonContainer: {
     flexDirection: 'row',
