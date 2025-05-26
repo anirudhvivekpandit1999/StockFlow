@@ -69,7 +69,6 @@ const NewOutboundForm = ({ onDismiss }) => {
             };
             fetchAndSetProductName();
             return () => { isMounted = false; };
-            // eslint-disable-next-line react-hooks/exhaustive-deps
           }, [values.serialNumber]);
 
           return (

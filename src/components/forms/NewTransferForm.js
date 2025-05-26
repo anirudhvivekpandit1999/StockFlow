@@ -19,7 +19,6 @@ const initialValues = {
 
 const DepartmentList = ["Sales", "Marketing"];
 
-// 🔄 Hook that runs when serialNumber changes
 const AutoFillProductName = () => {
   const { values, setFieldValue } = useFormikContext();
 
@@ -103,7 +102,6 @@ const NewTransferForm = ({ onDismiss }) => {
             style={styles.formContainer}
             showsVerticalScrollIndicator={false}
           >
-            {/* 🔄 Auto fetch product name logic */}
             <AutoFillProductName />
 
             <Text

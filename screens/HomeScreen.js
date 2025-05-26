@@ -105,7 +105,6 @@ export const HomeScreen = () => {
  ).map((t,index) => (
    <ActivityItem
    key={index}
-      // Always add a unique key when mapping over lists
      type="inbound"
      title={`Inbound: ${t.Name}`}
      details={`${t.Count} - ${t.Location}`}
@@ -121,7 +120,6 @@ export const HomeScreen = () => {
  ).map((t,index )=> (
    <ActivityItem
    key={index}
-      // Always add a unique key when mapping over lists
      type="dispatched"
      title={`Dispatched: ${t.Name}`}
      details={`${t.Count} - ${t.Location}`}
@@ -136,7 +134,6 @@ export const HomeScreen = () => {
  ).map((t,index) => (
    <ActivityItem
    key={index}
-      // Always add a unique key when mapping over lists
      type="transferred"
      title={`Transferred: ${t.Name}`}
      details={`${t.Count} - ${t.Location}`}
