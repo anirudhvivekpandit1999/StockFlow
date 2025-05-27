@@ -7,6 +7,8 @@ import {HomeScreen} from './screens/HomeScreen';
 import ReceivedOrders from './screens/RecievedOrders';
 import DispatchedOrders from './screens/DispatchedOrders';
 import AllActivity from './screens/AllActivity';
+import LoginScreen from './screens/LoginScreen';
+import SignUpScreen from './screens/SignUp';
 
 const Stack = createStackNavigator();
 export default function App() {
@@ -15,12 +17,22 @@ export default function App() {
       <NavigationContainer>
         
         <Stack.Navigator
-          initialRouteName="Home"
+          initialRouteName="Login"
           screenOptions={{
             gestureEnabled: true,
             gestureDirection: 'horizontal',
           }}
         >
+          <Stack.Screen
+            name="Login"
+            component={LoginScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="SignUp"
+            component={SignUpScreen}
+            options={{ headerShown: false }}
+          />
           <Stack.Screen
             name="Home"
             component={HomeScreen}
