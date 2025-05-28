@@ -9,50 +9,60 @@ import DispatchedOrders from './screens/DispatchedOrders';
 import AllActivity from './screens/AllActivity';
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUp';
+import GlobalContextProvider from './src/services/GlobalContext';
+
+import Dashboard from './screens/Dashboard';
 
 const Stack = createStackNavigator();
 export default function App() {
   return (
-    <GestureHandlerRootView>
-      <NavigationContainer>
-        
-        <Stack.Navigator
-          initialRouteName="Login"
-          screenOptions={{
-            gestureEnabled: true,
-            gestureDirection: 'horizontal',
-          }}
-        >
-          <Stack.Screen
-            name="Login"
-            component={LoginScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="SignUp"
-            component={SignUpScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Home"
-            component={HomeScreen}
-            options={{ headerShown: false }}
-            
-          />
-          <Stack.Screen
-            name="RecievedOrder"
-            component={ReceivedOrders}
+    <GlobalContextProvider>
+      <GestureHandlerRootView>
+        <NavigationContainer>
+          <Stack.Navigator
+            initialRouteName="Login"
+            screenOptions={{
+              gestureEnabled: true,
+              gestureDirection: 'horizontal',
+            }}
+          >
+            <Stack.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="SignUp"
+              component={SignUpScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+            name = 'dashboard'
+            component={Dashboard}
             options={{headerShown : false}}/>
             <Stack.Screen
-              name= "DispatchedOrders"
-              component={DispatchedOrders}
-              options={{headerShown : false}}/>
+              name="Home"
+              component={HomeScreen}
+              options={{ headerShown: false }}
+            />
             <Stack.Screen
-              name='AllActivity'
+              name="RecievedOrder"
+              component={ReceivedOrders}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="DispatchedOrders"
+              component={DispatchedOrders}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="AllActivity"
               component={AllActivity}
-              options={{headerShown : false}}/>
-        </Stack.Navigator>
-      </NavigationContainer>
-    </GestureHandlerRootView>
+              options={{ headerShown: false }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </GestureHandlerRootView>
+    </GlobalContextProvider>
   );
 }

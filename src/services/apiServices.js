@@ -1,4 +1,5 @@
-import { addNewFormEndpoint, getProductNameEndpoint, getSideBarDataEndpoint, getStockFlowDataEndpoint, stockInAndOutInboundOutboundMovementController, url } from "./globals";
+import { decryptData } from "./encryptionDecryptionService";
+import { addNewFormEndpoint, getProductNameEndpoint, getSideBarDataEndpoint, getStockFlowDataEndpoint, loginEndpoint, signUpEndpoint, stockInAndOutInboundOutboundMovementController, url, userAuthenticationAndRoleManagementController } from "./globals";
 import { callStoredProcedure } from "./procedureService";
 
 async function addNewForm(values) {
@@ -8,10 +9,10 @@ async function addNewForm(values) {
     return result;
 }
 
-async function getStockFlowData() {
-      
+async function getStockFlowData(values) {
+      console.log(values)
       console.log(`${url}${stockInAndOutInboundOutboundMovementController}${addNewFormEndpoint}`);
-    const result = await callStoredProcedure(`${url}${stockInAndOutInboundOutboundMovementController}${getStockFlowDataEndpoint}`, {});
+    const result = await callStoredProcedure(`${url}${stockInAndOutInboundOutboundMovementController}${getStockFlowDataEndpoint}`, values);
     return result;
 }
 
@@ -28,11 +29,26 @@ async function getProductName(values) {
     return result;
 }
 
+async function signUp (values) {
+  console.log(values);
+  const result = await callStoredProcedure(`${url}${userAuthenticationAndRoleManagementController}${signUpEndpoint}`,values);
+  return result;
+}
+
+async function login (values){
+  console.log(values);
+  const result = await callStoredProcedure(`${url}${userAuthenticationAndRoleManagementController}${loginEndpoint}`,values);
+  console.log(decryptData("E3B64FE72A7DC4781028B5BB2C2BF3A8D36DF471B9DB1D8CC91DA08AD75E6A68C98581FE8E3D45DCACA7324F7BBFDBC3D49A8BA789547BF49A9A1279B3823E5BD5652B1535BC60E02AA2C5ABC4190B8E"));
+  return result;
+}
+
 const apiServices = {
     addNewForm,
     getStockFlowData,
     getSideBarData,
-    getProductName
+    getProductName,
+    signUp,
+    login
 };
 
 export default apiServices;

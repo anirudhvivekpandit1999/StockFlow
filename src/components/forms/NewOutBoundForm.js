@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { Modal, Button, Text, useTheme } from "react-native-paper";
 import { View, StyleSheet, useWindowDimensions, Alert } from "react-native";
 import { Formik } from "formik";
@@ -6,6 +6,7 @@ import FormField from "./FormField";
 import { ScrollView } from "react-native-gesture-handler";
 import FormFieldNav from "./FormFieldNav";
 import apiServices from "../../services/apiServices";
+import {GlobalContext} from "../../services/GlobalContext";
 
 const initialValues = {
   serialNumber: "",
@@ -18,6 +19,7 @@ const initialValues = {
 const NewOutboundForm = ({ onDismiss }) => {
   const { width } = useWindowDimensions();
   const theme = useTheme();
+  const {userId} = useContext(GlobalContext);
 
   return (
     <Modal
@@ -39,7 +41,8 @@ const NewOutboundForm = ({ onDismiss }) => {
             Count: values.count,
             Name: values.client,
             Location: values.location,
-            StockStatus: 'Dispatched'
+            StockStatus: 'Dispatched',
+            UserId : userId
           });
           Alert.alert(result[0].Message);
           onDismiss();

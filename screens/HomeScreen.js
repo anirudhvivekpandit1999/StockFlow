@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { Text, Button, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
@@ -13,6 +13,7 @@ import NewOutboundForm from '../src/components/forms/NewOutBoundForm';
 import NewTransferForm from '../src/components/forms/NewTransferForm';
 import { callStoredProcedure } from '../src/services/procedureService';
 import apiServices from '../src/services/apiServices';
+import {GlobalContext} from '../src/services/GlobalContext';
 
 export const HomeScreen = () => {
   const theme = useTheme();
@@ -21,12 +22,15 @@ export const HomeScreen = () => {
   const [inboundModal , showInBoundModal] = useState (false);
   const [outbountModal , showOutBoundModal] = useState(false);
   const [transferModel , showTransferModel] = useState(false);
-  const [stockFlowData , setStockFlowData] = useState({})
+  const [stockFlowData , setStockFlowData] = useState({});
+  const {userId} = useContext(GlobalContext);
+  const[m,n]= useState(false)
   useEffect(()=>{
     fetchStockFlowData()
-  },[])
+  },[showSidebar , inboundModal , outbountModal , transferModel])
+  
   const fetchStockFlowData = async  () => {
-    var result = await apiServices.getStockFlowData();
+    var result = await apiServices.getStockFlowData({UserId : userId});
     console.log(JSON.parse(result[0].Data).Top2Activities);
     setStockFlowData(JSON.parse(result[0].Data));
   }

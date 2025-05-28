@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Modal, Button, Text, useTheme } from "react-native-paper";
 import { View, StyleSheet, useWindowDimensions, Alert } from "react-native";
 import { Formik, useFormikContext } from "formik";
@@ -8,6 +8,7 @@ import { Picker } from "@react-native-picker/picker";
 import FormField from "./FormField";
 import FormFieldNav from "./FormFieldNav";
 import apiServices from "../../services/apiServices";
+import { GlobalContext } from "../../services/GlobalContext";
 
 const initialValues = {
   serialNumber: "",
@@ -64,6 +65,7 @@ const AutoFillProductName = () => {
 const NewTransferForm = ({ onDismiss }) => {
   const { width } = useWindowDimensions();
   const theme = useTheme();
+  const {userId} = useContext(GlobalContext);
 
   return (
     <Modal
@@ -86,7 +88,8 @@ const NewTransferForm = ({ onDismiss }) => {
               Count: values.count,
               Name: values.department,
               Location: values.location,
-              StockStatus: "Transferred"
+              StockStatus: "Transferred",
+              UserId : userId
             });
 
             Alert.alert(result[0].Message);

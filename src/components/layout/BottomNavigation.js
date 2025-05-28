@@ -12,7 +12,7 @@ const BottomNavigation = ({onOpen}) => {
       key: 1,
       icon: 'home',
       onPress: () => {
-        navigation.navigate('Home');
+        navigation.navigate('dashboard');
       },
     },
     {

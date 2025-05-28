@@ -1,11 +1,13 @@
 import { useNavigation } from "@react-navigation/native";
 import { Formik } from "formik";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { use } from "react";
-import {Image,StyleSheet,useWindowDimensions,View,TouchableOpacity,StatusBar,KeyboardAvoidingView,Platform} from "react-native";
+import {Image,StyleSheet,useWindowDimensions,View,TouchableOpacity,StatusBar,KeyboardAvoidingView,Platform, Alert} from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { Button, Text, useTheme, TextInput } from "react-native-paper";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import apiServices from "../src/services/apiServices";
+import {GlobalContext} from "../src/services/GlobalContext";
 
 const FormField = ({ name, label, secureTextEntry, formikProps, icon }) => {
     const [showPassword, setShowPassword] = useState(false);
@@ -50,6 +52,7 @@ const SignUpScreen = () => {
     const { width, height } = useWindowDimensions();
     const [isLoading, setIsLoading] = useState(false);
     const navigation = useNavigation();
+    const {setUserId} = useContext(GlobalContext);
 
     const initialValues = {
         username: '',
@@ -77,10 +80,20 @@ const SignUpScreen = () => {
     const handleSignUp = async (values) => {
         setIsLoading(true);
         try {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            console.log('Sign Up values:', values);
+            const result = await apiServices.signUp({Username : values.username , Password : values.password});
+            if(result[0].Status === 200)
+            {
+                Alert.alert(result[0].Message);
+                console.log(result[0]);
+                setUserId(JSON.parse(result[0].Data).UserId);
+                navigation.navigate('dashboard');
+            }
+            else
+            {
+                Alert.alert(result[0].Message);
+            }
 
-            navigation.navigate('Home');
+            
 
         } catch (error) {
             console.error('Sign Up error:', error);
