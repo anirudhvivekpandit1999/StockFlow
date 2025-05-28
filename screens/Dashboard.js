@@ -75,32 +75,34 @@ const Dashboard = () => {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <View style={{flex:1 , flexDirection :"row" }}>
+        <View
+          style={{ flex: 1, flexDirection: "row" }}>
           <TouchableOpacity
-  onPress={() => navigation.navigate('Home')} // replace 'TargetScreen' with your route name
-  style={{
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-    alignSelf: 'flex-end',
-    marginBottom: 8,
-    overflow: 'hidden',
-  }}
->
-  <ImageBackground  
-    source={require('../src/assets/background.png')} // or { uri: 'https://example.com/image.png' }
-    style={{
-      width: 100,
-      height: 100,
-      borderRadius: 8,
-      resizeMode: 'cover',
-    }}
-  />
-</TouchableOpacity>
-          
+            onPress={() => navigation.navigate('Home')}
+            style={{
+              width: 100,
+              height: 100,
+              borderRadius: 8,
+              alignSelf: 'flex-end',
+              marginBottom: 8,
+              overflow: 'hidden',
+            }}
+          >
+            <ImageBackground
+              source={require('../src/assets/background.png')}
+              style={{
+                width: 100,
+                height: 100,
+                borderRadius: 8,
+                resizeMode: 'cover',
+              }}
+            />
+          </TouchableOpacity>
+
         </View>
 
-        <View style={[styles.cardPurple]}>
+        <View
+          style={[styles.cardPurple]}>
 
           <BarChart
             data={barData}
@@ -113,12 +115,15 @@ const Dashboard = () => {
               labelColor: () => "#fff",
               decimalPlaces: 0,
             }}
-            style={{ borderRadius: 16 }}
+            style={{
+              borderRadius: 16
+            }}
             fromZero
             showValuesOnTopOfBars
           />
         </View>
-        <View style={styles.card}>
+        <View
+          style={styles.card}>
           <ActivityItem
 
             type="inbound"
@@ -147,7 +152,8 @@ const Dashboard = () => {
         >
           View All Activity
         </Button>
-        <View style={styles.cardPurple}>
+        <View
+          style={styles.cardPurple}>
           <LinearGradient
             colors={[theme.colors.tertiary, theme.colors.primary]}
             style={{ borderRadius: 16, padding: 8, marginVertical: 16 }}
@@ -171,7 +177,8 @@ const Dashboard = () => {
         </View>
 
       </ScrollView>
-      {showSidebar && <SideBar onClose={closeSidebar} />}
+      {showSidebar && <SideBar
+        onClose={closeSidebar} />}
     </View>
   );
 }
@@ -224,12 +231,12 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 1,
     shadowRadius: 8,
-    // Elevation for Android
+
     elevation: 2,
     alignItems: 'center',
   },
   cardPurple: {
-    // transparent purple haze
+
     borderRadius: 20,
     // padding: 10,
     marginVertical: 5,

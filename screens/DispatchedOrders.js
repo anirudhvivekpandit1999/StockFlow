@@ -7,26 +7,26 @@ import BottomNavigation from "../src/components/layout/BottomNavigation";
 import { Text } from "react-native-paper";
 
 const DispatchedOrders = () => {
-    const [sideBar , showSidebar] = useState(false);
-    function toggleSideBar () {
+    const [sideBar, showSidebar] = useState(false);
+    function toggleSideBar() {
         showSidebar(true);
     }
-    function onClose (){
-        showSidebar (false);
+    function onClose() {
+        showSidebar(false);
     }
     return <View>
         <AppBar
-            title = "Stock Flow"
-            onMenuPress={()=>toggleSideBar()}/>
-            {sideBar && <SideBar 
-            onClose={onClose}/>}
+            title="Stock Flow"
+            onMenuPress={() => toggleSideBar()} />
+        {sideBar && <SideBar
+            onClose={onClose} />}
         <ScrollView>
             <Text>
                 This is Dispatched Orders Page
             </Text>
         </ScrollView>
-         <BottomNavigation 
-            onOpen={toggleSideBar}/>
+        <BottomNavigation
+            onOpen={toggleSideBar} />
     </View>
 }
 

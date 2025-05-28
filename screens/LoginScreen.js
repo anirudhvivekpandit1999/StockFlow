@@ -14,7 +14,8 @@ const FormField = ({ name, label, secureTextEntry, formikProps, icon }) => {
     const theme = useTheme();
 
     return (
-        <View style={styles.fieldContainer}>
+        <View 
+        style={styles.fieldContainer}>
             <TextInput
                 label={label}
                 value={formikProps.values[name]}
@@ -25,7 +26,8 @@ const FormField = ({ name, label, secureTextEntry, formikProps, icon }) => {
                 style={styles.textInput}
                 outlineColor={theme.colors.outline}
                 activeOutlineColor={theme.colors.primary}
-                left={<TextInput.Icon icon={icon} />}
+                left={<TextInput.Icon 
+                    icon={icon} />}
                 right={
                     secureTextEntry ? (
                         <TextInput.Icon
@@ -41,7 +43,8 @@ const FormField = ({ name, label, secureTextEntry, formikProps, icon }) => {
                 }}
             />
             {formikProps.touched[name] && formikProps.errors[name] && (
-                <Text style={styles.errorText}>{formikProps.errors[name]}</Text>
+                <Text 
+                style={styles.errorText}>{formikProps.errors[name]}</Text>
             )}
         </View>
     );
@@ -104,7 +107,10 @@ const LoginScreen = () => {
             style={styles.container}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-            <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+            <StatusBar 
+            barStyle="light-content" 
+            backgroundColor="transparent" 
+            translucent />
 
             <Image
                 source={require('../src/assets/background.png')}
@@ -117,22 +123,31 @@ const LoginScreen = () => {
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
             >
-                <View style={styles.logoContainer}>
-                    <View style={styles.logoCircle}>
-                        <Icon name="account-lock" size={50} color="#667eea" />
+                <View 
+                style={styles.logoContainer}>
+                    <View 
+                    style={styles.logoCircle}>
+                        <Icon 
+                        name="account-lock" 
+                        size={50} 
+                        color="#667eea" />
                     </View>
-                    <Text style={styles.appTitle}>Welcome Back</Text>
-                    <Text style={styles.appSubtitle}>Sign in to your account</Text>
+                    <Text 
+                    style={styles.appTitle}>Welcome Back</Text>
+                    <Text 
+                    style={styles.appSubtitle}>Sign in to your account</Text>
                 </View>
 
-                <View style={[styles.formCard, { width: Math.min(width - 40, 400) }]}>
+                <View 
+                style={[styles.formCard, { width: Math.min(width - 40, 400) }]}>
                     <Formik
                         initialValues={initialValues}
                         validate={validateForm}
                         onSubmit={handleLogin}
                     >
                         {(formikProps) => (
-                            <View style={styles.formContent}>
+                            <View 
+                            style={styles.formContent}>
                                 <Text style={styles.formTitle}>Login</Text>
 
                                 <FormField

@@ -13,24 +13,24 @@ import NewOutboundForm from '../src/components/forms/NewOutBoundForm';
 import NewTransferForm from '../src/components/forms/NewTransferForm';
 import { callStoredProcedure } from '../src/services/procedureService';
 import apiServices from '../src/services/apiServices';
-import {GlobalContext} from '../src/services/GlobalContext';
+import { GlobalContext } from '../src/services/GlobalContext';
 
 export const HomeScreen = () => {
   const theme = useTheme();
   const navigation = useNavigation();
   const [showSidebar, setShowSidebar] = useState(false);
-  const [inboundModal , showInBoundModal] = useState (false);
-  const [outbountModal , showOutBoundModal] = useState(false);
-  const [transferModel , showTransferModel] = useState(false);
-  const [stockFlowData , setStockFlowData] = useState({});
-  const {userId} = useContext(GlobalContext);
-  const[m,n]= useState(false)
-  useEffect(()=>{
+  const [inboundModal, showInBoundModal] = useState(false);
+  const [outbountModal, showOutBoundModal] = useState(false);
+  const [transferModel, showTransferModel] = useState(false);
+  const [stockFlowData, setStockFlowData] = useState({});
+  const { userId } = useContext(GlobalContext);
+  const [m, n] = useState(false)
+  useEffect(() => {
     fetchStockFlowData()
-  },[showSidebar , inboundModal , outbountModal , transferModel])
-  
-  const fetchStockFlowData = async  () => {
-    var result = await apiServices.getStockFlowData({UserId : userId});
+  }, [showSidebar, inboundModal, outbountModal, transferModel])
+
+  const fetchStockFlowData = async () => {
+    var result = await apiServices.getStockFlowData({ UserId: userId });
     console.log(JSON.parse(result[0].Data).Top2Activities);
     setStockFlowData(JSON.parse(result[0].Data));
   }
@@ -40,29 +40,29 @@ export const HomeScreen = () => {
     setShowSidebar(false)
   }
   return (
-    
-    <View 
-    style={styles.container}>
-      
+
+    <View
+      style={styles.container}>
+
       <AppBar
         title="Stock Flow"
         onMenuPress={() => toggleSideBar()}
       // actions={[{ icon: 'magnify', onPress: () => navigation.navigate('Search') }]} 
       />
-      {showSidebar && <SideBar 
-      onClose={closeSidebar} />}
-      
+      {showSidebar && <SideBar
+        onClose={closeSidebar} />}
+
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        
-        <View 
-        style={styles.headerCard}>
-          <Text 
-          style={styles.headerTitle}>Today's Activity</Text>
-          <Text 
-          style={styles.headerSubtitle}>{stockFlowData.Recieved} Recieved • {stockFlowData.Dispatched} Dispatched</Text>
+
+        <View
+          style={styles.headerCard}>
+          <Text
+            style={styles.headerTitle}>Today's Activity</Text>
+          <Text
+            style={styles.headerSubtitle}>{stockFlowData.Recieved} Recieved • {stockFlowData.Dispatched} Dispatched</Text>
         </View>
 
         <ActionCard
@@ -101,52 +101,52 @@ export const HomeScreen = () => {
           color="orange"
         />
 
-        <Text 
-        style={styles.sectionTitle}>Recent Activity</Text>
-
-         {stockFlowData.Top2Activities?.filter(
-   t => t.StockStatus === 'Received'
- ).map((t,index) => (
-   <ActivityItem
-   key={index}
-     type="inbound"
-     title={`Inbound: ${t.Name}`}
-     details={`${t.Count} - ${t.Location}`}
-     time={t.TimeAgo}
-     iconName="arrow-downward"
-     iconColor={theme.colors.inbound}
-     iconBgColor="#e8f0fe"
-   />
- ))} 
+        <Text
+          style={styles.sectionTitle}>Recent Activity</Text>
 
         {stockFlowData.Top2Activities?.filter(
-   t => t.StockStatus === 'Dispatched'
- ).map((t,index )=> (
-   <ActivityItem
-   key={index}
-     type="dispatched"
-     title={`Dispatched: ${t.Name}`}
-     details={`${t.Count} - ${t.Location}`}
-     time={t.TimeAgo}
-     iconName="arrow-upward"
-     iconColor={theme.colors.outbound}
-     iconBgColor="#fce8e6"
-   />
- ))} 
- {stockFlowData.Top2Activities?.filter(
-   t => t.StockStatus === 'Transferred'
- ).map((t,index) => (
-   <ActivityItem
-   key={index}
-     type="transferred"
-     title={`Transferred: ${t.Name}`}
-     details={`${t.Count} - ${t.Location}`}
-     time={t.TimeAgo}
-     iconName="swap-horiz"
-     iconColor={theme.colors.inbound}
-     iconBgColor="orange"
-   />
- ))} 
+          t => t.StockStatus === 'Received'
+        ).map((t, index) => (
+          <ActivityItem
+            key={index}
+            type="inbound"
+            title={`Inbound: ${t.Name}`}
+            details={`${t.Count} - ${t.Location}`}
+            time={t.TimeAgo}
+            iconName="arrow-downward"
+            iconColor={theme.colors.inbound}
+            iconBgColor="#e8f0fe"
+          />
+        ))}
+
+        {stockFlowData.Top2Activities?.filter(
+          t => t.StockStatus === 'Dispatched'
+        ).map((t, index) => (
+          <ActivityItem
+            key={index}
+            type="dispatched"
+            title={`Dispatched: ${t.Name}`}
+            details={`${t.Count} - ${t.Location}`}
+            time={t.TimeAgo}
+            iconName="arrow-upward"
+            iconColor={theme.colors.outbound}
+            iconBgColor="#fce8e6"
+          />
+        ))}
+        {stockFlowData.Top2Activities?.filter(
+          t => t.StockStatus === 'Transferred'
+        ).map((t, index) => (
+          <ActivityItem
+            key={index}
+            type="transferred"
+            title={`Transferred: ${t.Name}`}
+            details={`${t.Count} - ${t.Location}`}
+            time={t.TimeAgo}
+            iconName="swap-horiz"
+            iconColor={theme.colors.inbound}
+            iconBgColor="orange"
+          />
+        ))}
 
         <Button
           mode="outlined"
@@ -159,15 +159,15 @@ export const HomeScreen = () => {
       </ScrollView>
       <BottomNavigation
         onOpen={toggleSideBar} />
-        {inboundModal && <NewInboundForm 
-      onDismiss={()=>showInBoundModal(false)}/>}
+      {inboundModal && <NewInboundForm
+        onDismiss={() => showInBoundModal(false)} />}
       {
         outbountModal && <NewOutboundForm
-        onDismiss={ () => showOutBoundModal(false)}/>
+          onDismiss={() => showOutBoundModal(false)} />
       }
       {
         transferModel && <NewTransferForm
-        onDismiss={()=> showTransferModel(false)}/>
+          onDismiss={() => showTransferModel(false)} />
       }
     </View>
   );
