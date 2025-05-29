@@ -47,6 +47,7 @@ export const HomeScreen = () => {
       <AppBar
         title="Stock Flow"
         onMenuPress={() => toggleSideBar()}
+        onBackPress={() => navigation.goBack()}
       // actions={[{ icon: 'magnify', onPress: () => navigation.navigate('Search') }]} 
       />
       {showSidebar && <SideBar
@@ -105,7 +106,7 @@ export const HomeScreen = () => {
           style={styles.sectionTitle}>Recent Activity</Text>
 
         {stockFlowData.Top2Activities?.filter(
-          t => t.StockStatus === 'Received'
+          t => t.StockStatus === 'Recieved'
         ).map((t, index) => (
           <ActivityItem
             key={index}

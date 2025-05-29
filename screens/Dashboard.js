@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { ImageBackground, StyleSheet, useWindowDimensions, View } from "react-native";
 import { ScrollView, Text } from "react-native-gesture-handler";
 import AppBar from "../src/components/layout/AppBar";
@@ -9,14 +9,34 @@ import { BarChart, PieChart } from "react-native-chart-kit";
 import { Button, useTheme } from "react-native-paper";
 import LinearGradient from "react-native-linear-gradient";
 import ActivityItem from "../src/components/stock/ActivityItem";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { TouchableOpacity } from "react-native";
 import { Image } from "react-native-svg";
+import apiServices from "../src/services/apiServices";
 
 const Dashboard = () => {
   const { showSidebar, setShowSidebar } = useContext(GlobalContext);
+  const [bardata, setBardata] = useState([]);
+  const [count, setCount] = useState({ "recieved": 0, "dispatched": 0, "transferred": 0 })
+  const [recentActivities, setRecentActivities] = useState([]);
   const theme = useTheme();
   const navigation = useNavigation();
+  useFocusEffect(
+    useCallback(() => {
+      fetchAnalysisData();
+    }, [])
+  );
+  const fetchAnalysisData = async () => {
+    var result = await apiServices.getAnalysis();
+    setBardata(JSON.parse(result.Data).BarData);
+    setRecentActivities(JSON.parse(result.Data).Top2Activities);
+    setCount({
+      "recieved": JSON.parse(JSON.parse(result.Data).RecievedCount).RecievedCount,
+      "dispatched": JSON.parse(JSON.parse(result.Data).DispatchedCount).DispatchedCount,
+      "transferred": JSON.parse(JSON.parse(result.Data).TransferredCount).TransferredCount
+    })
+    console.log(JSON.parse(JSON.parse(result.Data).TransferredCount).TransferredCount);
+  }
   function toggleSideBar() {
     setShowSidebar(true)
   } function closeSidebar() {
@@ -26,21 +46,21 @@ const Dashboard = () => {
   const pieData = [
     {
       name: "Recieved",
-      population: 100,
+      population: count.recieved,
       color: "rgba(255, 135, 135, 0.44)",
       legendFontColor: "#fff",
       legendFontSize: 13
     },
     {
       name: "Dispatch",
-      population: 100,
+      population: count.dispatched,
       color: "rgba(138, 238, 252, 0.7)",
       legendFontColor: "#fff",
       legendFontSize: 13
     },
     {
       name: "Transfer",
-      population: 100,
+      population: count.transferred,
       color: "rgba(250, 191, 63, 0.7)",
       legendFontColor: "#fff",
       legendFontSize: 13
@@ -53,14 +73,14 @@ const Dashboard = () => {
     { name: "Item D", stocks: 5 },
     { name: "Item E", stocks: 15 }
   ];
-  const leastStocks = [...stockData]
-    .sort((a, b) => a.stocks - b.stocks)
+  const leastStocks = bardata
+    .sort((a, b) => a.Count - b.Count)
     .slice(0, 3);
   const barData = {
-    labels: leastStocks.map(item => item.name),
+    labels: leastStocks.map(item => item.ProductName),
     datasets: [
       {
-        data: leastStocks.map(item => item.stocks)
+        data: leastStocks.map(item => item.Count)
       }
     ]
   };
@@ -124,26 +144,52 @@ const Dashboard = () => {
         </View>
         <View
           style={styles.card}>
-          <ActivityItem
 
-            type="inbound"
-            title={`Inbound: Reem`}
-            details={`100 - Vashere`}
-            time='10s'
-            iconName="arrow-downward"
-            iconColor={theme.colors.inbound}
-            iconBgColor="#e8f0fe"
-          />
-          <ActivityItem
+          {recentActivities.filter(
+            t => t.StockStatus === 'Recieved'
+          ).map((t, index) => (
+            <ActivityItem
+              key={index}
+              type="inbound"
+              title={`Inbound: ${t.Name}`}
+              details={`${t.Count} - ${t.Location}`}
+              time={t.TimeAgo}
+              iconName="arrow-downward"
+              iconColor={theme.colors.inbound}
+              iconBgColor="#e8f0fe"
+            />
+          ))}
 
-            type="dispatched"
-            title={`Dispatched: Shruti`}
-            details={`1000 - Powai`}
-            time="5 Days ago"
-            iconName="arrow-upward"
-            iconColor={theme.colors.outbound}
-            iconBgColor="#fce8e6"
-          /></View>
+          {recentActivities.filter(
+            t => t.StockStatus === 'Dispatched'
+          ).map((t, index) => (
+            <ActivityItem
+              key={index}
+              type="dispatched"
+              title={`Dispatched: ${t.Name}`}
+              details={`${t.Count} - ${t.Location}`}
+              time={t.TimeAgo}
+              iconName="arrow-upward"
+              iconColor={theme.colors.outbound}
+              iconBgColor="#fce8e6"
+            />
+          ))}
+          {recentActivities.filter(
+            t => t.StockStatus === 'Transferred'
+          ).map((t, index) => (
+            <ActivityItem
+              key={index}
+              type="transferred"
+              title={`Transferred: ${t.Name}`}
+              details={`${t.Count} - ${t.Location}`}
+              time={t.TimeAgo}
+              iconName="swap-horiz"
+              iconColor={theme.colors.inbound}
+              iconBgColor="orange"
+            />
+          ))}
+
+        </View>
         <Button
           mode="outlined"
           onPress={() => navigation.navigate('AllActivity')}
