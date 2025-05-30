@@ -13,9 +13,10 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { TouchableOpacity } from "react-native";
 import { Image } from "react-native-svg";
 import apiServices from "../src/services/apiServices";
+import BottomNavigation from "../src/components/layout/BottomNavigation";
 
 const Dashboard = () => {
-  const { showSidebar, setShowSidebar } = useContext(GlobalContext);
+    const [sideBar, showSidebar] = useState(false);
   const [bardata, setBardata] = useState([]);
   const [count, setCount] = useState({ "recieved": 0, "dispatched": 0, "transferred": 0 })
   const [recentActivities, setRecentActivities] = useState([]);
@@ -38,9 +39,9 @@ const Dashboard = () => {
     console.log(JSON.parse(JSON.parse(result.Data).TransferredCount).TransferredCount);
   }
   function toggleSideBar() {
-    setShowSidebar(true)
+    showSidebar(true)
   } function closeSidebar() {
-    setShowSidebar(false)
+    showSidebar(false)
   }
   const { width } = useWindowDimensions()
   const pieData = [
@@ -96,7 +97,7 @@ const Dashboard = () => {
         showsVerticalScrollIndicator={false}
       >
         <View
-          style={{ flex: 1, flexDirection: "row" }}>
+          style={{ flex: 1, flexDirection: "row" , gap : 10}}>
           <TouchableOpacity
             onPress={() => navigation.navigate('Home')}
             style={{
@@ -110,6 +111,28 @@ const Dashboard = () => {
           >
             <ImageBackground
               source={require('../src/assets/background.png')}
+              style={{
+                width: 100,
+                height: 100,
+                borderRadius: 8,
+                resizeMode: 'cover',
+              }}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Inventory')}
+            style={{
+              width: 100,
+              height: 100,
+              borderRadius: 8,
+              alignSelf: 'flex-end',
+              marginBottom: 8,
+              overflow: 'hidden',
+            }}
+          >
+            <ImageBackground
+              source={require('../src/assets/Media.png')}
               style={{
                 width: 100,
                 height: 100,
@@ -223,7 +246,9 @@ const Dashboard = () => {
         </View>
 
       </ScrollView>
-      {showSidebar && <SideBar
+      <BottomNavigation
+        onOpen={toggleSideBar} />
+      {sideBar && <SideBar
         onClose={closeSidebar} />}
     </View>
   );

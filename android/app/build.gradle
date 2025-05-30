@@ -113,6 +113,8 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+     implementation 'com.google.mlkit:barcode-scanning:17.2.0'
+     implementation 'com.google.mlkit:barcode-scanning:17.2.0'
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)

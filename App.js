@@ -12,6 +12,12 @@ import SignUpScreen from './screens/SignUp';
 import GlobalContextProvider from './src/services/GlobalContext';
 
 import Dashboard from './screens/Dashboard';
+import InventoryManagement from './screens/InventoryManagement';
+import { FastField } from 'formik';
+import ProductDetails from './screens/ProductDetails';
+import QRScannerScreen from './screens/QRScanner';
+import QRWebViewScanner from './screens/QRScanner';
+import QRImageScanner from './screens/QRScanner';
 
 const Stack = createStackNavigator();
 export default function App() {
@@ -45,6 +51,19 @@ export default function App() {
               component={HomeScreen}
               options={{ headerShown: false }}
             />
+            <Stack.Screen
+              name='Inventory'
+              component={InventoryManagement}
+              options={{headerShown:false}}/>
+              <Stack.Screen
+                name='ProductDetails'
+                
+                component={ProductDetails}
+                options={{headerShown : false}}/>
+                 {/* <Stack.Screen
+                  name='QRScanner'
+                  component={QRImageScanner}
+                  options={{headerShown:false}}/>  */}
             <Stack.Screen
               name="RecievedOrder"
               component={ReceivedOrders}
