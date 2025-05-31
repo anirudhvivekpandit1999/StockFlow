@@ -9,7 +9,6 @@ import { Divider, FAB, useTheme } from "react-native-paper";
 import { Image } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-
 const InventoryManagement = () => {
     const {showSidebar , setShowSidebar} = useContext(GlobalContext);
     const {width} = useWindowDimensions();
@@ -83,9 +82,7 @@ const InventoryManagement = () => {
     />)}
   style={styles.fab}
   color="#fff"
-  onPress={() => {
-    navigation.navigate('QRScanner')
-  }}
+  onPress={() => navigation.navigate('QRScanner')}
   
 />
             <BottomNavigation
