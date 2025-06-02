@@ -85,6 +85,9 @@ const Dashboard = () => {
       }
     ]
   };
+  const handleDrawerOpen = () => {
+    console.log('Drawer opened!');
+  };
 
   return (
     <View style={styles.container}>
@@ -247,7 +250,7 @@ const Dashboard = () => {
 
       </ScrollView>
       <BottomNavigation
-        onOpen={toggleSideBar} />
+        onOpen={handleDrawerOpen} />
       {sideBar && <SideBar
         onClose={closeSidebar} />}
     </View>

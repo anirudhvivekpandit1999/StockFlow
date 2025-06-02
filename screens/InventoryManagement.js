@@ -57,6 +57,9 @@ const InventoryManagement = () => {
   //       Location : 'Saki Naka'
   //   }
   // ]
+  const handleDrawerOpen = () => {
+    console.log('Drawer opened!');
+  };
     return <View style={styles.container}>
          <AppBar
         title="Stock Flow"
@@ -104,7 +107,7 @@ const InventoryManagement = () => {
   
 />
             <BottomNavigation
-        onOpen={toggleSideBar} />
+        onOpen={handleDrawerOpen} />
       {showSidebar && <SideBar
         onClose={closeSidebar} />}
     </View>

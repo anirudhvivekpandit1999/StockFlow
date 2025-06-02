@@ -39,6 +39,9 @@ export const HomeScreen = () => {
   } function closeSidebar() {
     setShowSidebar(false)
   }
+  const handleDrawerOpen = () => {
+    console.log('Drawer opened!');
+  };
   return (
 
     <View
@@ -159,7 +162,7 @@ export const HomeScreen = () => {
         </Button>
       </ScrollView>
       <BottomNavigation
-        onOpen={toggleSideBar} />
+        onOpen={handleDrawerOpen} />
       {inboundModal && <NewInboundForm
         onDismiss={() => showInBoundModal(false)} />}
       {

@@ -14,6 +14,9 @@ const DispatchedOrders = () => {
     function onClose() {
         showSidebar(false);
     }
+    const handleDrawerOpen = () => {
+    console.log('Drawer opened!');
+  };
     return <View>
         <AppBar
             title="Stock Flow"
@@ -26,7 +29,7 @@ const DispatchedOrders = () => {
             </Text>
         </ScrollView>
         <BottomNavigation
-            onOpen={toggleSideBar} />
+            onOpen={handleDrawerOpen} />
     </View>
 }
 

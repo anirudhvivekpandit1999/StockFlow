@@ -68,6 +68,9 @@ const ProductDetails = () => {
         
         return `${day}-${month}-${year}`;
     };
+    const handleDrawerOpen = () => {
+    console.log('Drawer opened!');
+  };
 
     return (
         <View style={styles.container}>
@@ -151,7 +154,7 @@ const ProductDetails = () => {
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
             </ScrollView>
 
-            <BottomNavigation onOpen={closeSidebar} />
+            <BottomNavigation onOpen={handleDrawerOpen} />
         </View>
     );
 };

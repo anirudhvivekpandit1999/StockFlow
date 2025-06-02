@@ -1,63 +1,117 @@
-import { useNavigation } from '@react-navigation/native';
+import React, { useState } from 'react';
+import { View, Modal, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const BottomNavigation = ({onOpen}) => {
+const BottomNavigation = ({ onOpen }) => {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedWarehouse, setSelectedWarehouse] = useState('Warehouse 1');
+
+  const handleWarehouseSelect = (warehouse) => {
+    setSelectedWarehouse(warehouse);
+    setModalVisible(false);
+    console.log('Selected warehouse:', warehouse);
+  };
 
   const actions = [
     {
       key: 1,
       icon: 'home',
-      onPress: () => {
-        navigation.navigate('dashboard');
-      },
+      onPress: () => navigation.navigate('dashboard'),
     },
     {
       key: 2,
       icon: 'arrow-down-bold',
-      onPress: () => {
-        navigation.navigate('RecievedOrder');
-      },
+      onPress: () => navigation.navigate('RecievedOrder'),
     },
     {
       key: 3,
       icon: 'arrow-up-bold',
-      onPress: () => {
-        navigation.navigate('DispatchedOrders');
-      },
-    },
-    {
-      key: 4,
-      icon: 'menu',
-      onPress: onOpen
-    },
+      onPress: () => navigation.navigate('DispatchedOrders'),
+    }
   ];
 
   return (
-    <Appbar
-      style={{
-        backgroundColor: theme.colors.primary,
-        height: 56 + insets.bottom,
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        paddingBottom: insets.bottom,
-      }}
-    >
-      {actions.map((action) => (
-        <Appbar.Action
-          key={action.key}
-          icon={action.icon}
-          onPress={action.onPress}
-      
-          color="white"
-        />
-      ))}
-    </Appbar>
+    <>
+      <Appbar
+        style={{
+          backgroundColor: theme.colors.primary,
+          height: 56 + insets.bottom,
+          flexDirection: 'row',
+          justifyContent: 'space-around',
+          alignItems: 'center',
+          paddingBottom: insets.bottom,
+        }}
+      >
+        {actions.map((action) => (
+          <Appbar.Action
+            key={action.key}
+            icon={action.icon}
+            onPress={action.onPress}
+            color="white"
+          />
+        ))}
+
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
+          <Icon name="warehouse" size={26} color="white" />
+        </TouchableOpacity>
+      </Appbar>
+
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPressOut={() => setModalVisible(false)}
+        >
+          <View style={styles.modalContent}>
+            {['Warehouse 1', 'Warehouse 2', 'Warehouse 3'].map((w, i) => (
+              <TouchableOpacity
+                key={i}
+                style={styles.option}
+                onPress={() => handleWarehouseSelect(w)}
+              >
+                <Text style={styles.optionText}>{w}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    </>
   );
 };
+
+const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: '#00000055',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 16,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  option: {
+    paddingVertical: 12,
+    borderBottomColor: '#ddd',
+    borderBottomWidth: 1,
+  },
+  optionText: {
+    fontSize: 16,
+    color: '#333',
+  },
+});
 
 export default BottomNavigation;

@@ -14,6 +14,9 @@ const AllActivity = () => {
     function onClose() {
         showSideBar(false);
     }
+    const handleDrawerOpen = () => {
+    console.log('Drawer opened!');
+  };
     return <View>
         <AppBar
             title="Stock Flow"
@@ -32,7 +35,7 @@ const AllActivity = () => {
 
         </ScrollView>
         <BottomNavigation
-            onOpen={toggleSideBar} />
+            onOpen={handleDrawerOpen} />
     </View>
 }
 
