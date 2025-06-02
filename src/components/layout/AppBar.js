@@ -1,9 +1,12 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { StyleSheet, View, Text, Animated, Dimensions } from 'react-native';
 import { Appbar, Searchbar, useTheme } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import apiServices from '../../services/apiServices';
+import { use } from 'react';
+import { GlobalContext } from '../../services/GlobalContext';
 
 const { width } = Dimensions.get('window');
 
@@ -38,6 +41,17 @@ const AppBar = ({
   const [searchAnimation] = useState(new Animated.Value(0));
   const [filterVisible, setFilterVisible] = useState(false);
   const [filter, setFilter] = useState('All');
+  const [dummyList , setDummyList] = useState([]);
+  const {userId} = useContext(GlobalContext);
+  useEffect(()=>{
+    getDummyList();
+  }, [filter])
+  async function getDummyList(){
+
+    const result = await apiServices.getSearchedList({StockStatus : filter , UserId : userId})
+    console.log("Dummy List Data: ", (JSON.parse(result.Data)).map(item => item.ProductName));
+    setDummyList((JSON.parse(result.Data)).map(item => item.ProductName));
+  }
   const navigation = useNavigation();
 
   const toggleSearch = () => {
@@ -172,7 +186,7 @@ const AppBar = ({
         </Appbar.Header>
         {filterVisible && (
           <View style={styles.filterDropdown}>
-            {['All', 'Dispatched', 'Received', 'Transferred'].map(option => (
+            {['All', 'Dispatched', 'Recieved', 'Transferred'].map(option => (
               <TouchableOpacity
                 key={option}
                 style={[styles.filterOption, filter === option && styles.filterOptionSelected]}

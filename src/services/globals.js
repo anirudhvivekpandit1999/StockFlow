@@ -1,4 +1,4 @@
-export const url = 'https://cbd5-202-160-169-18.ngrok-free.app/api/';
+export const url = 'https://c19e-202-160-169-18.ngrok-free.app/api/';
 export const stockInAndOutInboundOutboundMovementController = 'StockInAndOutInboundOutboundMovement/';
 export const addNewFormEndpoint = 'AddNewForm';
 export const getStockFlowDataEndpoint = 'GetStockFlowData';
@@ -12,6 +12,8 @@ export const getAnalysisEndpoint = 'GetAnalysis';
 export const inventoryManagementController = 'InventoryManagement/';
 export const getInventoryListEndpoint = 'GetInventoryList';
 export const getInventoryDetailsEndpoint = 'GetInventoryDetails';
+export const searchBarAndFilterFunctionalityController = 'SearchBarAndFilterFunctionality/';
+export const getSearchedListEndpoint = 'GetSearchedList';
 
 
 export function toggleSideBar(sideBar) {
