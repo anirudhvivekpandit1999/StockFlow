@@ -1,40 +1,56 @@
-import React, { useEffect, useState } from "react";
-import { StyleSheet, View, Dimensions, useWindowDimensions } from "react-native";
+import React, { useEffect, useState, useCallback } from "react";
+import { StyleSheet, View, Dimensions, useWindowDimensions, BackHandler } from "react-native";
 import { ScrollView, Text } from "react-native-gesture-handler";
 import AppBar from "../src/components/layout/AppBar";
 import BottomNavigation from "../src/components/layout/BottomNavigation";
-import { useRoute } from "@react-navigation/native";
+import { useRoute, useNavigation, useFocusEffect } from "@react-navigation/native";
 import Svg, { Defs, G, LinearGradient, Path, Stop } from "react-native-svg";
 import { useTheme } from "react-native-paper";
+import apiServices from "../src/services/apiServices";
+import { date, DateSchema } from "yup";
 
 const ProductDetails = () => {
     const [showSidebar, setShowSidebar] = useState(false);
     const [productdetails, setproductdetails] = useState({
-        productname: '',
-        serialnumber: '',
-        location: '',
-        count: 0,
-        lastModifiedBy: '',
-        lastModifiedOn: ''
     });
     const route = useRoute();
+    const navigation = useNavigation();
     const { name } = route.params || {};
     const theme = useTheme();
     const { height } = useWindowDimensions();
     const { width } = Dimensions.get("window");
 
+    useFocusEffect(
+        useCallback(() => {
+            const onBackPress = () => {
+                navigation.navigate('InventoryManagement');
+                return true; 
+            };
+
+            const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+            return () => subscription.remove();
+        }, [navigation])
+    );
+
     useEffect(() => {
-        if (name === 'Laptop') {
-            setproductdetails({
-                productname: 'Laptop',
-                serialnumber: 'POTPAL-001',
-                location: 'Vashera',
-                count: 15,
-                lastModifiedBy: 'Anirudh',
-                lastModifiedOn: '19-02-1999'
-            });
-        }
+        fetchProductDetails();
     }, [name]);
+
+    async function fetchProductDetails() {
+        try {
+            let result = await apiServices.getInventoryDetails({ productName: name });
+            console.log("Product Details: ", JSON.parse(result.Data));
+            if (result.Status === 200) {
+                setproductdetails(JSON.parse(result.Data));
+
+            }
+
+        } catch (error) {
+
+            console.log("Error fetching product details : ", error);
+        }
+    }
 
     function toggleSideBar() {
         setShowSidebar(true);
@@ -44,27 +60,35 @@ const ProductDetails = () => {
         setShowSidebar(false);
     }
 
+    const formatDate = (mssqlDate) => {
+        const date = new Date(mssqlDate);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = String(date.getFullYear()).slice(-2);
+        
+        return `${day}-${month}-${year}`;
+    };
+
     return (
         <View style={styles.container}>
             <AppBar title="Stock Flow" onMenuPress={toggleSideBar} />
 
             <View style={[styles.topDesignContainer, { height: height / 2 }]}>
                 <Svg
-    width={width}
-    height={height / 2}
-    viewBox={`0 0 ${width} ${height / 2}`}
-    style={StyleSheet.absoluteFill}
->
-    <Defs>
-        <LinearGradient id="purpleGradient" x1="0" y1="0" x2="1" y2="1">
-            <Stop offset="0%" stopColor="#8854d0" />
-            <Stop offset="100%" stopColor="#a084ee" />
-        </LinearGradient>
-    </Defs>
+                    width={width}
+                    height={height / 2}
+                    viewBox={`0 0 ${width} ${height / 2}`}
+                    style={StyleSheet.absoluteFill}
+                >
+                    <Defs>
+                        <LinearGradient id="purpleGradient" x1="0" y1="0" x2="1" y2="1">
+                            <Stop offset="0%" stopColor="#8854d0" />
+                            <Stop offset="100%" stopColor="#a084ee" />
+                        </LinearGradient>
+                    </Defs>
 
-    {/* Background wave */}
-    <Path
-        d={`
+                    <Path
+                        d={`
             M0,${height / 3}
             C${width / 4},${height / 2.5}
              ${width / 1.5},${height / 4}
@@ -73,12 +97,11 @@ const ProductDetails = () => {
             L0,0
             Z
         `}
-        fill="url(#purpleGradient)"
-    />
+                        fill="url(#purpleGradient)"
+                    />
 
-    {/* Foreground highlight wave */}
-    <Path
-        d={`
+                    <Path
+                        d={`
             M0,${height / 2.5}
             C${width / 6},${height / 3.2}
              ${width / 1.8},${height / 3}
@@ -87,25 +110,25 @@ const ProductDetails = () => {
             L0,0
             Z
         `}
-        fill="#ffffff"
-        fillOpacity="0.1"
-    />
-</Svg>
+                        fill="#ffffff"
+                        fillOpacity="0.1"
+                    />
+                </Svg>
 
                 <View style={styles.productIconContainer}>
-                    <Text style={[styles.productName, { color: "white"  }]}>
-                        {productdetails.productname}
+                    <Text style={[styles.productName, { color: "white" }]}>
+                        {productdetails.ProductName}
                     </Text>
                 </View>
 
                 <View style={styles.topInfoRow}>
                     <View style={styles.topInfoCardSerial}>
                         <Text style={styles.topInfoLabel}>Serial Number</Text>
-                        <Text style={styles.topInfoValue}>{productdetails.serialnumber}</Text>
+                        <Text style={styles.topInfoValue}>{productdetails.ProductSerialNumber}</Text>
                     </View>
                     <View style={styles.topInfoCardLocation}>
                         <Text style={styles.topInfoLabel}>Location</Text>
-                        <Text style={styles.topInfoValue}>{productdetails.location}</Text>
+                        <Text style={styles.topInfoValue}>{productdetails.Location}</Text>
                     </View>
                 </View>
             </View>
@@ -113,20 +136,19 @@ const ProductDetails = () => {
             <View style={styles.statsRow}>
                 <View style={styles.statCardCount}>
                     <Text style={styles.statLabel}>Count</Text>
-                    <Text style={styles.statValue}>{productdetails.count}</Text>
+                    <Text style={styles.statValue}>{productdetails.Count}</Text>
                 </View>
                 <View style={styles.statCardBy}>
                     <Text style={styles.statLabel}>Last Modified By</Text>
-                    <Text style={styles.statValue}>{productdetails.lastModifiedBy}</Text>
+                    <Text style={styles.statValue}>{productdetails.Username || 'no one'}</Text>
                 </View>
                 <View style={styles.statCardOn}>
                     <Text style={styles.statLabel}>Last Modified On</Text>
-                    <Text style={styles.statValue}>{productdetails.lastModifiedOn}</Text>
+                    <Text style={styles.statValue}>{formatDate(productdetails.LastModifiedOn)}</Text>
                 </View>
             </View>
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-                {/* Additional details can go here */}
             </ScrollView>
 
             <BottomNavigation onOpen={closeSidebar} />

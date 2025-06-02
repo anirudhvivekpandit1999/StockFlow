@@ -1,5 +1,5 @@
 import { decryptData } from "./encryptionDecryptionService";
-import { addNewFormEndpoint, dashboardController, getAnalysisEndpoint, getProductNameEndpoint, getSideBarDataEndpoint, getStockFlowDataEndpoint, loginEndpoint, signUpEndpoint, stockInAndOutInboundOutboundMovementController, url, userAuthenticationAndRoleManagementController } from "./globals";
+import { addNewFormEndpoint, dashboardController, getAnalysisEndpoint, getInventoryDetailsEndpoint, getInventoryListEndpoint, getProductNameEndpoint, getSideBarDataEndpoint, getStockFlowDataEndpoint, inventoryManagementController, loginEndpoint, signUpEndpoint, stockInAndOutInboundOutboundMovementController, url, userAuthenticationAndRoleManagementController } from "./globals";
 import { callStoredProcedure } from "./procedureService";
 
 async function addNewForm(values) {
@@ -47,6 +47,16 @@ async function getAnalysis (){
   return result[0];
 }
 
+async function getInventoryList () {
+  const result  =  await callStoredProcedure(`${url}${inventoryManagementController}${getInventoryListEndpoint}`, {});
+  return result[0];
+}
+
+async function getInventoryDetails (values){
+  const result =  await callStoredProcedure(`${url}${inventoryManagementController}${getInventoryDetailsEndpoint}`, values);
+  return result[0];
+}
+
 const apiServices = {
     addNewForm,
     getStockFlowData,
@@ -54,7 +64,9 @@ const apiServices = {
     getProductName,
     signUp,
     login,
-    getAnalysis
+    getAnalysis,
+    getInventoryList,
+    getInventoryDetails
 };
 
 export default apiServices;

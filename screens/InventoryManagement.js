@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import {  StyleSheet, useWindowDimensions, View } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import {  Alert, StyleSheet, useWindowDimensions, View } from "react-native";
 import { FlatList, ScrollView, Text } from "react-native-gesture-handler";
 import AppBar from "../src/components/layout/AppBar";
 import { GlobalContext } from "../src/services/GlobalContext";
@@ -9,36 +9,54 @@ import { Divider, FAB, useTheme } from "react-native-paper";
 import { Image } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import apiServices from "../src/services/apiServices";
 const InventoryManagement = () => {
     const {showSidebar , setShowSidebar} = useContext(GlobalContext);
     const {width} = useWindowDimensions();
+    const [inventoryListData , setInventoryListData] = useState([]);
     const navigation = useNavigation();
     const theme = useTheme();
+    useEffect(()=>{
+        fetchInventoryList();
+    },[])
+
+    async function fetchInventoryList() {
+        try {
+          var result = await apiServices.getInventoryList();
+          if (result.Status === 200){
+            console.log("Inventory List Data:", JSON.parse(result.Data));
+            setInventoryListData(JSON.parse(result.Data));
+          }
+          
+        } catch (error) {
+          console.error("Error fetching inventory list:", error);
+        }
+    }
     function toggleSideBar() {
     setShowSidebar(true)
   } function closeSidebar() {
     setShowSidebar(false)
   }
-  const inventoryListData = [
-    {
-        Name : 'Laptop',
-        Count : 1, 
-        ProductSerialNumber : 'potpal',
-        Location : 'Powai'
-    },
-    {
-        Name : 'Keyboard',
-        Count : 12, 
-        ProductSerialNumber : 'draobyek',
-        Location : 'Vashere'
-    },
-    {
-        Name:'Mouse',
-        Count:123,
-        ProductSerialNumber : 'esoum',
-        Location : 'Saki Naka'
-    }
-  ]
+  // const inventoryListData = [
+  //   {
+  //       Name : 'Laptop',
+  //       Count : 1, 
+  //       ProductSerialNumber : 'potpal',
+  //       Location : 'Powai'
+  //   },
+  //   {
+  //       Name : 'Keyboard',
+  //       Count : 12, 
+  //       ProductSerialNumber : 'draobyek',
+  //       Location : 'Vashere'
+  //   },
+  //   {
+  //       Name:'Mouse',
+  //       Count:123,
+  //       ProductSerialNumber : 'esoum',
+  //       Location : 'Saki Naka'
+  //   }
+  // ]
     return <View style={styles.container}>
          <AppBar
         title="Stock Flow"
@@ -54,9 +72,9 @@ const InventoryManagement = () => {
     renderItem={({ item }) => (
         <TouchableOpacity 
         style={[styles.card , {borderBlockColor : theme.colors.background}]}
-        onPress={()=>navigation.navigate('ProductDetails',{name : item.Name})} >
+        onPress={()=>navigation.navigate('ProductDetails',{name : item.ProductName})} >
       
-        <Text style = {[styles.content,{width:width -32 , padding:5 ,paddingBottom:10 ,position:"static"}]}>{item.Name}</Text>
+        <Text style = {[styles.content,{width:width -32 , padding:5 ,paddingBottom:10 ,position:"static"}]}>{item.ProductName}</Text>
         <Text style = {{fontWeight : "600" ,  fontStyle : "italic"}}>Location : {item.Location}</Text>
         <Divider/>
         <View style={{justifyContent: "space-around" , display : "flex" ,flexDirection :"row"}}>

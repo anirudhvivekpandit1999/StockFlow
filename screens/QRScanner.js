@@ -11,23 +11,22 @@ const QRScanner = () => {
   const [scannedData, setScannedData] = useState('');
   const cameraRef = useRef(null);
   const navigation = useNavigation();     
-  useEffect(() => {
-    const codeValue = 'Laptop';
-    setScannedData(codeValue);
-    setScanned(true);
-      navigation.navigate('ProductDetails', { name: codeValue });
+  // useEffect(() => {
+  //   const codeValue = 'Laptop';
+  //   setScannedData(codeValue);
+  //   setScanned(true);
+  //     navigation.navigate('ProductDetails', { name: codeValue });
     
-    // Optional: Show alert
-    Alert.alert('QR Code Scanned', codeValue);
-  }, [scanned]);
+  //   Alert.alert('QR Code Scanned', codeValue);
+  // }, [scanned]);
 
   const onReadCode = (event) => {
+    
     const codeValue = 'Laptop';
     setScannedData(codeValue);
     setScanned(true);
       navigation.navigate('ProductDetails', { name: codeValue });
     
-    // Optional: Show alert
     Alert.alert('QR Code Scanned', codeValue);
   };
 
