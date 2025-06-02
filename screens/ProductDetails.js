@@ -23,7 +23,7 @@ const ProductDetails = () => {
     useFocusEffect(
         useCallback(() => {
             const onBackPress = () => {
-                navigation.navigate('InventoryManagement');
+                navigation.navigate('Inventory');
                 return true; 
             };
 
