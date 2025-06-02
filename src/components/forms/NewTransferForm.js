@@ -36,6 +36,7 @@ const AutoFillProductName = () => {
       try {
         const response = await apiServices.getProductName({
           ProductSerialNumber: trimmed,
+          WarehouseId: 1
         });
 
         if (isMounted) {
@@ -89,7 +90,8 @@ const NewTransferForm = ({ onDismiss }) => {
               Name: values.department,
               Location: values.location,
               StockStatus: "Transferred",
-              UserId : userId
+              UserId : userId,
+              WarehouseId : 1
             });
 
             Alert.alert(result[0].Message);

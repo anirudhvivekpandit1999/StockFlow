@@ -39,7 +39,7 @@ const ProductDetails = () => {
 
     async function fetchProductDetails() {
         try {
-            let result = await apiServices.getInventoryDetails({ productName: name });
+            let result = await apiServices.getInventoryDetails({ ProductName: name , WarehouseId : 1 });
             console.log("Product Details: ", JSON.parse(result.Data));
             if (result.Status === 200) {
                 setproductdetails(JSON.parse(result.Data));

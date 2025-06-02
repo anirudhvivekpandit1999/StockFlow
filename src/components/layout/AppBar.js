@@ -48,13 +48,13 @@ const AppBar = ({
   }, [filter])
   async function getDummyList(){
 
-    const result = await apiServices.getSearchedList({StockStatus : filter , UserId : userId})
+    const result = await apiServices.getSearchedList({StockStatus : filter , UserId : userId , WarehouseId : 1})
     console.log("Dummy List Data: ", (JSON.parse(result.Data)).map(item => item.ProductName));
     setDummyList((JSON.parse(result.Data)).map(item => item.ProductName));
   }
   const navigation = useNavigation();
 
-  const toggleSearch = () => {
+  const toggleSearch = () => {  
     const toValue = isSearchVisible ? 0 : 1;
     Animated.timing(searchAnimation, {
       toValue,

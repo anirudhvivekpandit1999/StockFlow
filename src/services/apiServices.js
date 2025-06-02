@@ -42,13 +42,13 @@ async function login (values){
   return result;
 }
 
-async function getAnalysis (){
-  const result = await callStoredProcedure(`${url}${dashboardController}${getAnalysisEndpoint}`,{})
+async function getAnalysis (values){
+  const result = await callStoredProcedure(`${url}${dashboardController}${getAnalysisEndpoint}`, values)
   return result[0];
 }
 
-async function getInventoryList () {
-  const result  =  await callStoredProcedure(`${url}${inventoryManagementController}${getInventoryListEndpoint}`, {});
+async function getInventoryList (values) {
+  const result  =  await callStoredProcedure(`${url}${inventoryManagementController}${getInventoryListEndpoint}`, values);
   return result[0];
 }
 

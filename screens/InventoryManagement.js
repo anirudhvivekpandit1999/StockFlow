@@ -22,7 +22,7 @@ const InventoryManagement = () => {
 
     async function fetchInventoryList() {
         try {
-          var result = await apiServices.getInventoryList();
+          var result = await apiServices.getInventoryList({WarehouseId: 1});
           if (result.Status === 200){
             console.log("Inventory List Data:", JSON.parse(result.Data));
             setInventoryListData(JSON.parse(result.Data));

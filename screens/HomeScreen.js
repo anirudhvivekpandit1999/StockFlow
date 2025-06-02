@@ -30,7 +30,7 @@ export const HomeScreen = () => {
   }, [showSidebar, inboundModal, outbountModal, transferModel])
 
   const fetchStockFlowData = async () => {
-    var result = await apiServices.getStockFlowData({ UserId: userId });
+    var result = await apiServices.getStockFlowData({ UserId: userId , WarehouseId: 1   });
     console.log(JSON.parse(result[0].Data).Top2Activities);
     setStockFlowData(JSON.parse(result[0].Data));
   }

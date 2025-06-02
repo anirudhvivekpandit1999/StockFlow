@@ -53,6 +53,7 @@ const NewInboundForm = ({ onDismiss }) => {
               Location: values.location,
               StockStatus: "Recieved",
               UserId: userId,
+              WarehouseId : 1
             });
 
             const data = result[0];
@@ -72,6 +73,7 @@ const NewInboundForm = ({ onDismiss }) => {
                 try {
                   const response = await apiServices.getProductName({
                     ProductSerialNumber: values.serialNumber,
+                    WarehouseId: 1
                   });
                   if (isMounted) {
                     if (response && response.length > 0) {

@@ -42,7 +42,8 @@ const NewOutboundForm = ({ onDismiss }) => {
             Name: values.client,
             Location: values.location,
             StockStatus: 'Dispatched',
-            UserId : userId
+            UserId : userId , 
+            WarehouseId : 1
           });
           Alert.alert(result[0].Message);
           onDismiss();
@@ -54,7 +55,7 @@ const NewOutboundForm = ({ onDismiss }) => {
             const fetchAndSetProductName = async () => {
               if (values.serialNumber) {
                 try {
-                  const response = await apiServices.getProductName({ ProductSerialNumber: values.serialNumber });
+                  const response = await apiServices.getProductName({ ProductSerialNumber: values.serialNumber , WarehouseId: 1 });
                   console.log("Product Name Response:", JSON.parse(response[0].Data).ProductName);
                   if (isMounted) {
                     if (response && response.length > 0) {

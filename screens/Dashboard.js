@@ -28,7 +28,7 @@ const Dashboard = () => {
     }, [])
   );
   const fetchAnalysisData = async () => {
-    var result = await apiServices.getAnalysis();
+    var result = await apiServices.getAnalysis({WarehouseId: 1});
     setBardata(JSON.parse(result.Data).BarData);
     setRecentActivities(JSON.parse(result.Data).Top2Activities);
     setCount({
