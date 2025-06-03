@@ -22,7 +22,7 @@ const Dashboard = () => {
   const [bardata, setBardata] = useState([]);
   const [count, setCount] = useState({ "recieved": 0, "dispatched": 0, "transferred": 0 })
   const [recentActivities, setRecentActivities] = useState([]);
-  const [syncStatus, setSyncStatus] = useState('idle'); // idle | syncing | success | error
+  const [syncStatus, setSyncStatus] = useState('idle'); 
   const theme = useTheme();
   const navigation = useNavigation();
   const {warehouseId} = useContext(GlobalContext);
@@ -93,7 +93,6 @@ const Dashboard = () => {
     console.log('Drawer opened!');
   };
 
-  // Wrap syncInventory to update status
   const syncWithStatus = async () => {
     setSyncStatus('syncing');
     try {
@@ -106,7 +105,6 @@ const Dashboard = () => {
     }
   };
 
-  // Add sync on mount
   useEffect(() => {
     syncWithStatus();
   }, []);
