@@ -10,19 +10,21 @@ import { Image } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import apiServices from "../src/services/apiServices";
+import { use } from "react";
 const InventoryManagement = () => {
     const {showSidebar , setShowSidebar} = useContext(GlobalContext);
     const {width} = useWindowDimensions();
     const [inventoryListData , setInventoryListData] = useState([]);
     const navigation = useNavigation();
     const theme = useTheme();
+    const {warehouseId} = useContext(GlobalContext);
     useEffect(()=>{
         fetchInventoryList();
     },[])
 
     async function fetchInventoryList() {
         try {
-          var result = await apiServices.getInventoryList({WarehouseId: 1});
+          var result = await apiServices.getInventoryList({WarehouseId: warehouseId});
           if (result.Status === 200){
             console.log("Inventory List Data:", JSON.parse(result.Data));
             setInventoryListData(JSON.parse(result.Data));
@@ -70,7 +72,7 @@ const InventoryManagement = () => {
               showsVerticalScrollIndicator={false}
             >
                 <FlatList
-    data={inventoryListData}
+    data={(inventoryListData || [])}
     keyExtractor={item => item.ProductSerialNumber}
     renderItem={({ item }) => (
         <TouchableOpacity 

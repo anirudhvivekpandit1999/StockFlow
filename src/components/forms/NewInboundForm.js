@@ -28,7 +28,7 @@ const initialValues = {
 const NewInboundForm = ({ onDismiss }) => {
   const { width } = useWindowDimensions();
   const theme = useTheme();
-  const { userId } = useContext(GlobalContext);
+  const { userId , warehouseId } = useContext(GlobalContext);
 
   return (
     <Modal
@@ -53,7 +53,7 @@ const NewInboundForm = ({ onDismiss }) => {
               Location: values.location,
               StockStatus: "Recieved",
               UserId: userId,
-              WarehouseId : 1
+              WarehouseId : warehouseId
             });
 
             const data = result[0];

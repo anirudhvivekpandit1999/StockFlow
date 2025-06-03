@@ -66,7 +66,7 @@ const AutoFillProductName = () => {
 const NewTransferForm = ({ onDismiss }) => {
   const { width } = useWindowDimensions();
   const theme = useTheme();
-  const {userId} = useContext(GlobalContext);
+  const {userId , warehouseId} = useContext(GlobalContext);
 
   return (
     <Modal
@@ -91,7 +91,7 @@ const NewTransferForm = ({ onDismiss }) => {
               Location: values.location,
               StockStatus: "Transferred",
               UserId : userId,
-              WarehouseId : 1
+              WarehouseId : warehouseId
             });
 
             Alert.alert(result[0].Message);

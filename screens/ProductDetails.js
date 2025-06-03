@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useContext } from "react";
 import { StyleSheet, View, Dimensions, useWindowDimensions, BackHandler } from "react-native";
 import { ScrollView, Text } from "react-native-gesture-handler";
 import AppBar from "../src/components/layout/AppBar";
@@ -8,6 +8,7 @@ import Svg, { Defs, G, LinearGradient, Path, Stop } from "react-native-svg";
 import { useTheme } from "react-native-paper";
 import apiServices from "../src/services/apiServices";
 import { date, DateSchema } from "yup";
+import { GlobalContext } from "../src/services/GlobalContext";
 
 const ProductDetails = () => {
     const [showSidebar, setShowSidebar] = useState(false);
@@ -19,7 +20,7 @@ const ProductDetails = () => {
     const theme = useTheme();
     const { height } = useWindowDimensions();
     const { width } = Dimensions.get("window");
-
+    const { warehouseId } = useContext(GlobalContext);
     useFocusEffect(
         useCallback(() => {
             const onBackPress = () => {
@@ -39,7 +40,7 @@ const ProductDetails = () => {
 
     async function fetchProductDetails() {
         try {
-            let result = await apiServices.getInventoryDetails({ ProductName: name , WarehouseId : 1 });
+            let result = await apiServices.getInventoryDetails({ ProductName: name , WarehouseId : warehouseId });
             console.log("Product Details: ", JSON.parse(result.Data));
             if (result.Status === 200) {
                 setproductdetails(JSON.parse(result.Data));

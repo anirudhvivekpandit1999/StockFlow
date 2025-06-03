@@ -22,13 +22,14 @@ const Dashboard = () => {
   const [recentActivities, setRecentActivities] = useState([]);
   const theme = useTheme();
   const navigation = useNavigation();
+  const {warehouseId} = useContext(GlobalContext);
   useFocusEffect(
     useCallback(() => {
       fetchAnalysisData();
-    }, [])
+    }, [warehouseId])
   );
   const fetchAnalysisData = async () => {
-    var result = await apiServices.getAnalysis({WarehouseId: 1});
+    var result = await apiServices.getAnalysis({WarehouseId: warehouseId});
     setBardata(JSON.parse(result.Data).BarData);
     setRecentActivities(JSON.parse(result.Data).Top2Activities);
     setCount({
@@ -74,7 +75,7 @@ const Dashboard = () => {
     { name: "Item D", stocks: 5 },
     { name: "Item E", stocks: 15 }
   ];
-  const leastStocks = bardata
+  const leastStocks = (bardata || [])
     .sort((a, b) => a.Count - b.Count)
     .slice(0, 3);
   const barData = {
@@ -171,7 +172,7 @@ const Dashboard = () => {
         <View
           style={styles.card}>
 
-          {recentActivities.filter(
+          {(recentActivities || []).filter(
             t => t.StockStatus === 'Recieved'
           ).map((t, index) => (
             <ActivityItem
@@ -186,7 +187,7 @@ const Dashboard = () => {
             />
           ))}
 
-          {recentActivities.filter(
+          {(recentActivities || []).filter(
             t => t.StockStatus === 'Dispatched'
           ).map((t, index) => (
             <ActivityItem
@@ -200,7 +201,7 @@ const Dashboard = () => {
               iconBgColor="#fce8e6"
             />
           ))}
-          {recentActivities.filter(
+          {(recentActivities || []).filter(
             t => t.StockStatus === 'Transferred'
           ).map((t, index) => (
             <ActivityItem

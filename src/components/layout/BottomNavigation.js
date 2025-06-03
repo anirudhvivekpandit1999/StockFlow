@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, Modal, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import apiServices from '../../services/apiServices';
+import { ScrollView } from 'react-native-gesture-handler';
+import { GlobalContext } from '../../services/GlobalContext';
 
 const BottomNavigation = ({ onOpen }) => {
   const theme = useTheme();
@@ -12,9 +15,34 @@ const BottomNavigation = ({ onOpen }) => {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedWarehouse, setSelectedWarehouse] = useState('Warehouse 1');
+  const [warehouseData , setWarehouseData] = useState([]);
+  const { setWarehouseId } = useContext(GlobalContext);
+  useEffect(()=>{
+    fetchWarehouse();
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchWarehouse();
+    });
+
+    return unsubscribe;
+  },[]);
+
+  async function fetchWarehouse(){
+    try {
+        const response = await apiServices.getWarehouseNames();
+        if (response.Status === 200) {
+          console.log('Warehouse names fetched successfully:', JSON.parse(response.Data).map(item => item.WarehouseLocation));
+            setWarehouseData(JSON.parse(response.Data));
+        } else {
+            console.error('Failed to fetch warehouse names:', response.Message);
+        }
+    } catch (error) {
+        console.error('Error fetching warehouse names:', error);
+    }
+  }
 
   const handleWarehouseSelect = (warehouse) => {
-    setSelectedWarehouse(warehouse);
+    setSelectedWarehouse(warehouse.WarehouseLocation);
+    setWarehouseId(warehouse.WarehouseId);
     setModalVisible(false);
     console.log('Selected warehouse:', warehouse);
   };
@@ -74,17 +102,17 @@ const BottomNavigation = ({ onOpen }) => {
           activeOpacity={1}
           onPressOut={() => setModalVisible(false)}
         >
-          <View style={styles.modalContent}>
-            {['Warehouse 1', 'Warehouse 2', 'Warehouse 3'].map((w, i) => (
+          <ScrollView style={styles.modalContent}>
+            {warehouseData.map((w, i) => (
               <TouchableOpacity
-                key={i}
+                key={w.WarehouseId}
                 style={styles.option}
                 onPress={() => handleWarehouseSelect(w)}
               >
-                <Text style={styles.optionText}>{w}</Text>
+                <Text style={styles.optionText}>{w.WarehouseLocation}</Text>
               </TouchableOpacity>
             ))}
-          </View>
+          </ScrollView>
         </TouchableOpacity>
       </Modal>
     </>

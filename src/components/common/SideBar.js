@@ -47,7 +47,7 @@ const SideBar = ({ onClose }) => {
                               color: theme.colors.primary
                         }]}>StockFlow</Text>
                         {
-                              sideBarData.map((side,index) => (
+                              (sideBarData || []).map((side,index) => (
                                     <TouchableOpacity 
                                     style={styles.item} 
                                     onPress={() => navigateTo(side.Navigate)} 

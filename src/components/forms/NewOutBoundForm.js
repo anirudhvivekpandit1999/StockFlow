@@ -19,7 +19,7 @@ const initialValues = {
 const NewOutboundForm = ({ onDismiss }) => {
   const { width } = useWindowDimensions();
   const theme = useTheme();
-  const {userId} = useContext(GlobalContext);
+  const {userId , warehouseId} = useContext(GlobalContext);
 
   return (
     <Modal
@@ -43,7 +43,7 @@ const NewOutboundForm = ({ onDismiss }) => {
             Location: values.location,
             StockStatus: 'Dispatched',
             UserId : userId , 
-            WarehouseId : 1
+            WarehouseId : warehouseId
           });
           Alert.alert(result[0].Message);
           onDismiss();

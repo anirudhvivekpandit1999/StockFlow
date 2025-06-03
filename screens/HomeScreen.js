@@ -25,12 +25,13 @@ export const HomeScreen = () => {
   const [stockFlowData, setStockFlowData] = useState({});
   const { userId } = useContext(GlobalContext);
   const [m, n] = useState(false)
+  const {warehouseId} = useContext(GlobalContext);
   useEffect(() => {
     fetchStockFlowData()
   }, [showSidebar, inboundModal, outbountModal, transferModel])
 
   const fetchStockFlowData = async () => {
-    var result = await apiServices.getStockFlowData({ UserId: userId , WarehouseId: 1   });
+    var result = await apiServices.getStockFlowData({ UserId: userId , WarehouseId: warehouseId });
     console.log(JSON.parse(result[0].Data).Top2Activities);
     setStockFlowData(JSON.parse(result[0].Data));
   }

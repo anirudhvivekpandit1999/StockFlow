@@ -42,13 +42,13 @@ const AppBar = ({
   const [filterVisible, setFilterVisible] = useState(false);
   const [filter, setFilter] = useState('All');
   const [dummyList , setDummyList] = useState([]);
-  const {userId} = useContext(GlobalContext);
+  const {userId , warehouseId} = useContext(GlobalContext);
   useEffect(()=>{
     getDummyList();
   }, [filter])
   async function getDummyList(){
 
-    const result = await apiServices.getSearchedList({StockStatus : filter , UserId : userId , WarehouseId : 1})
+    const result = await apiServices.getSearchedList({StockStatus : filter , UserId : userId , WarehouseId : warehouseId})
     console.log("Dummy List Data: ", (JSON.parse(result.Data)).map(item => item.ProductName));
     setDummyList((JSON.parse(result.Data)).map(item => item.ProductName));
   }
