@@ -16,6 +16,7 @@ import InventoryManagement from './screens/InventoryManagement';
 import { FastField } from 'formik';
 import ProductDetails from './screens/ProductDetails';
 import  QRScanner  from './screens/QRScanner';
+import reportsScreen from './screens/reports';
 
 
 
@@ -77,6 +78,11 @@ export default function App() {
             <Stack.Screen
               name="AllActivity"
               component={AllActivity}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="reports"
+              component={reportsScreen}
               options={{ headerShown: false }}
             />
           </Stack.Navigator>

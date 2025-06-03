@@ -1,4 +1,4 @@
-export const url = 'https://d7a5-202-160-169-18.ngrok-free.app/api/';
+export const url = 'https://3a04-202-160-169-18.ngrok-free.app/api/';
 export const stockInAndOutInboundOutboundMovementController = 'StockInAndOutInboundOutboundMovement/';
 export const addNewFormEndpoint = 'AddNewForm';
 export const getStockFlowDataEndpoint = 'GetStockFlowData';

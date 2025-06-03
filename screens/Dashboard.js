@@ -5,7 +5,7 @@ import AppBar from "../src/components/layout/AppBar";
 import { GlobalContext } from "../src/services/GlobalContext";
 import { toggleSideBar } from "../src/services/globals";
 import SideBar from "../src/components/common/SideBar";
-import { BarChart, PieChart } from "react-native-chart-kit";
+import { BarChart, PieChart, StackedBarChart } from "react-native-chart-kit";
 import { Button, useTheme } from "react-native-paper";
 import LinearGradient from "react-native-linear-gradient";
 import ActivityItem from "../src/components/stock/ActivityItem";
@@ -89,6 +89,15 @@ const Dashboard = () => {
       }
     ]
   };
+
+  // Convert barData to stackedBarData format for StackedBarChart
+  const stackedBarDataFromBarData = {
+    labels: barData.labels,
+    legend: ['Value'], // Single legend for each bar
+    data: barData.datasets[0].data.map(val => [Number(val)]),
+    barColors: ['#fff'], // Use white or your preferred color
+  };
+
   const handleDrawerOpen = () => {
     console.log('Drawer opened!');
   };
@@ -179,20 +188,42 @@ const Dashboard = () => {
             />
           </TouchableOpacity>
 
+          <TouchableOpacity
+            onPress={() => navigation.navigate('reports')}
+            style={{
+              width: 100,
+              height: 100,
+              borderRadius: 8,
+              alignSelf: 'flex-end',
+              marginBottom: 8,
+              overflow: 'hidden',
+            }}
+          >
+            <ImageBackground
+              source={require('../src/assets/reports.png')}
+              style={{
+                width: 100,
+                height: 100,
+                borderRadius: 8,
+                resizeMode: 'cover',
+              }}
+            />
+          </TouchableOpacity>
+
         </View>
 
         <View
           style={[styles.cardPurple]}>
 
-          <BarChart
-            data={barData}
+          <StackedBarChart
+            data={stackedBarDataFromBarData}
             width={width - 20}
             height={220}
             chartConfig={{
               backgroundGradientFrom: theme.colors.tertiary,
               backgroundGradientTo: theme.colors.primary,
-              color: () => "#fff",
-              labelColor: () => "#fff",
+              color: () => '#fff',
+              labelColor: () => '#fff',
               decimalPlaces: 0,
             }}
             style={{
