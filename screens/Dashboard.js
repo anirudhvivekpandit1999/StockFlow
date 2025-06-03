@@ -14,12 +14,15 @@ import { TouchableOpacity } from "react-native";
 import { Image } from "react-native-svg";
 import apiServices from "../src/services/apiServices";
 import BottomNavigation from "../src/components/layout/BottomNavigation";
+import { syncInventory } from '../src/services/syncService';
+import NetInfo from '@react-native-community/netinfo';
 
 const Dashboard = () => {
     const [sideBar, showSidebar] = useState(false);
   const [bardata, setBardata] = useState([]);
   const [count, setCount] = useState({ "recieved": 0, "dispatched": 0, "transferred": 0 })
   const [recentActivities, setRecentActivities] = useState([]);
+  const [syncStatus, setSyncStatus] = useState('idle'); // idle | syncing | success | error
   const theme = useTheme();
   const navigation = useNavigation();
   const {warehouseId} = useContext(GlobalContext);
@@ -90,12 +93,44 @@ const Dashboard = () => {
     console.log('Drawer opened!');
   };
 
+  // Wrap syncInventory to update status
+  const syncWithStatus = async () => {
+    setSyncStatus('syncing');
+    try {
+      await syncInventory();
+      setSyncStatus('success');
+      setTimeout(() => setSyncStatus('idle'), 2000);
+    } catch (e) {
+      setSyncStatus('error');
+      setTimeout(() => setSyncStatus('idle'), 2000);
+    }
+  };
+
+  // Add sync on mount
+  useEffect(() => {
+    syncWithStatus();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      if (state.isConnected) {
+        syncWithStatus();
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   return (
     <View style={styles.container}>
       <AppBar
         title="Stock Flow"
         onMenuPress={() => toggleSideBar(showSidebar)}
       />
+      <View style={{ position: 'absolute', top: 16, right: 16, zIndex: 100 }}>
+        {syncStatus === 'syncing' && <Text style={{ color: '#FFA500', fontWeight: 'bold' }}>Syncing...</Text>}
+        {syncStatus === 'success' && <Text style={{ color: '#4CAF50', fontWeight: 'bold' }}>Synced ✓</Text>}
+        {syncStatus === 'error' && <Text style={{ color: '#F44336', fontWeight: 'bold' }}>Sync Failed</Text>}
+      </View>
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
