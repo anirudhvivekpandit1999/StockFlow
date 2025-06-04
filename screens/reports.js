@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   StyleSheet,
   useWindowDimensions,
@@ -9,6 +9,7 @@ import {
   Platform,
   PermissionsAndroid,
   Alert,
+  ActivityIndicator
 } from "react-native";
 import AppBar from "../src/components/layout/AppBar";
 import BottomNavigation from "../src/components/layout/BottomNavigation";
@@ -19,27 +20,42 @@ import Share from "react-native-share";
 import RNFS from "react-native-fs";
 import apiServices from "../src/services/apiServices";
 
-const reportsScreen = ({ navigation }) => {
+const ReportsScreen = ({ navigation }) => {
   const [value, setValue] = useState("Daily");
   const [fabOpen, setFabOpen] = useState(false);
-  const { width, height } = useWindowDimensions();
-  const [reportsData , setReportsData] = useState([]);
-  const [stocks , setStocks] = useState([]);
+  const { width } = useWindowDimensions();
+  const [reportsData, setReportsData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [stocksData, setStocksData] = useState([]);
   const theme = useTheme();
-  useEffect(()=>{
-    fetchReportsData2();
-    console.log("Reports Fetched" , reportsData.filter(r=>r.Period === 'Daily').map(r => r.Recieved / r.Total)[0])
-  },[])
-  async function fetchReportsData2(){
-    try {
-      const reportData = await apiServices.testReportData({ WarehouseId: 1, TestDate: "2025-05-29" });
-      console.log("Fetched reports data:", JSON.parse(reportData[0].SummaryData).filter(r=>r.Period === 'Daily').map(r=>r.Transferred)[0  ]);
 
-      setReportsData(JSON.parse(reportData[0].SummaryData));
-    } catch (error) {
-      console.error("Error fetching reports data:", error);
-    }
-  }
+  useEffect(() => {
+    const fetchReportsData = async () => {
+      try {
+        setLoading(true);
+        const reportData = await apiServices.testReportData({ 
+          WarehouseId: 1, 
+          TestDate: "2025-05-29" 
+        });
+        
+        if (reportData?.length > 0) {
+          setReportsData(JSON.parse(reportData[0].SummaryData) || []);
+          console.log("here is the report data", JSON.parse(JSON.parse(reportData[0].ActivityData).map(item => item.MonthlyActivities)));
+         setStocksData(JSON.parse(reportData[0].ActivityData) || []);
+        }
+      } catch (error) {
+        console.error("Error fetching reports data:", error);
+        Alert.alert("Error", "Failed to load reports data");
+      } finally {
+        setLoading(false);
+        console.log("Stocks data loaded successfully", stocksData);
+      }
+    };
+
+    fetchReportsData();
+    
+  }, []);
+
   const handleDrawerOpen = () => {
     console.log("Drawer opened!");
   };
@@ -51,35 +67,47 @@ const reportsScreen = ({ navigation }) => {
     labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
     style: { borderRadius: 16 },
     propsForBackgroundLines: { stroke: "#e3e3e3" },
+    barPercentage: 0.5,
   };
 
-  const dataMap = {
-    Daily: [
-      { label: "Received"
-        , value: reportsData.filter(r=>r.Period === 'Daily').map(r => r.Recieved / r.Total)[0] || 0 ,
-         count: reportsData.filter(r=>r.Period === 'Daily').map(r => r.Recieved )[0] || 0},
+  // Memoized progress data calculation
+  const progressData = useMemo(() => {
+    const periodData = reportsData.find(r => r.Period === value) || {};
+    const total = periodData.Total || 1; // Prevent division by zero
+    
+    return [
+      { 
+        label: "Received",
+        value: periodData.Recieved ? periodData.Recieved / total : 0,
+        count: periodData.Recieved || 0
+      },
       { 
         label: "Dispatched", 
-        value: reportsData.filter(r=>r.Period === 'Daily').map(r => r.Dispatched / r.Total)[0] || 0 , 
-        count: reportsData.filter(r=>r.Period === 'Daily').map(r=> r.Dispatched)[0] || 0
+        value: periodData.Dispatched ? periodData.Dispatched / total : 0,
+        count: periodData.Dispatched || 0
       },
       { 
         label: "Transferred", 
-        value: 0.3, 
-        count: 9 
+        value: periodData.Transferred ? periodData.Transferred / total : 0,
+        count: periodData.Transferred || 0
       }
-    ],
-    Monthly: [
-      { label: "Received", value: 0.7, count: 70 },
-      { label: "Dispatched", value: 0.5, count: 50 },
-      { label: "Transferred", value: 0.4, count: 40 }
-    ],
-    Yearly: [
-      { label: "Received", value: 0.85, count: 850 },
-      { label: "Dispatched", value: 0.65, count: 650 },
-      { label: "Transferred", value: 0.45, count: 450 }
-    ]
-  };
+    ];
+  }, [reportsData, value]);
+
+  // Memoized bar chart data
+  const barChartData = useMemo(() => {
+    const periodData = reportsData.find(r => r.Period === value) || {};
+    return {
+      labels: ['Stock Flow'],
+      data: [
+        [periodData.Recieved || 0],
+        [periodData.Dispatched || 0],
+        [periodData.Transferred || 0]
+      ],
+      barColors: ['#8854d0', '#8854d0', '#8854d0'],
+      legend: ['Received', 'Dispatched', 'Transferred']
+    };
+  }, [reportsData, value]);
 
   const stockHistory = {
     Daily: [
@@ -94,18 +122,6 @@ const reportsScreen = ({ navigation }) => {
       { date: "2024", action: "Received", amount: "43000 units" },
       { date: "2024", action: "Transferred", amount: "12000 units" },
     ],
-  };
-
-  const progressData = dataMap[value];
-  const barChartData = {
-    labels: progressData.map((d) => d.label),
-    datasets: [{ data: progressData.map((d) => d.value * 100) }],
-  };
-  const stackedBarDataFromBarChartData = {
-    labels: barChartData.labels,
-    legend: ['Value'], // Single legend for each bar
-    data: barChartData.datasets[0].data.map(val => [Number(val)]),
-    barColors: ['#fff'], // Use white or your preferred color
   };
 
   const requestWritePermission = async () => {
@@ -132,21 +148,21 @@ const reportsScreen = ({ navigation }) => {
     const hasPermission = await requestWritePermission();
     if (!hasPermission) return;
 
-    const csv =
-      "Date,Action,Amount\n" +
-      stockHistory[value]
-        .map((item) => `${item.date},${item.action},${item.amount}`)
-        .join("\n");
-
-    const fileName = `${value}_stock_report.csv`;
-    const downloadsPath =
-      Platform.OS === "android"
-        ? RNFS.DownloadDirectoryPath
-        : RNFS.DocumentDirectoryPath;
-
-    const path = `${downloadsPath}/${fileName}`;
-
     try {
+      const csv =
+        "Date,Action,Amount\n" +
+        stockHistory[value]
+          .map((item) => `${item.date},${item.action},${item.amount}`)
+          .join("\n");
+
+      const fileName = `${value}_stock_report.csv`;
+      const downloadsPath =
+        Platform.OS === "android"
+          ? RNFS.DownloadDirectoryPath
+          : RNFS.DocumentDirectoryPath;
+
+      const path = `${downloadsPath}/${fileName}`;
+
       await RNFS.writeFile(path, csv, "utf8");
       await Share.open({ url: `file://${path}`, type: "text/csv" });
     } catch (error) {
@@ -159,17 +175,33 @@ const reportsScreen = ({ navigation }) => {
     const hasPermission = await requestWritePermission();
     if (!hasPermission) return;
 
-    const history = stockHistory[value]
-      .map((item) => `<li>${item.date} - ${item.action} (${item.amount})</li>`)
-      .join("");
-
-    const html = `<h1>${value} Stock Report</h1><ul>${history}</ul>`;
-
     try {
+      const history = stockHistory[value]
+        .map((item) => `<li>${item.date} - ${item.action} (${item.amount})</li>`)
+        .join("");
+
+      const html = `
+        <html>
+          <head>
+            <style>
+              body { font-family: Arial; padding: 20px; }
+              h1 { color: #333; }
+              ul { list-style-type: none; padding: 0; }
+              li { margin-bottom: 10px; }
+            </style>
+          </head>
+          <body>
+            <h1>${value} Stock Report</h1>
+            <ul>${history}</ul>
+          </body>
+        </html>
+      `;
+
       const downloadsPath =
         Platform.OS === "android"
           ? RNFS.DownloadDirectoryPath
           : RNFS.DocumentDirectoryPath;
+      
       const pdfFile = await RNHTMLtoPDF.convert({
         html,
         fileName: `${value}_stock_report`,
@@ -183,6 +215,32 @@ const reportsScreen = ({ navigation }) => {
       Alert.alert("Export Failed", "Could not generate PDF file.");
     }
   };
+
+  const activities = useMemo(() => {
+    if (value === 'Daily') {
+      return stocksData.map(item => item.DailyActivities ? JSON.parse(item.DailyActivities) : []).flat();
+    } else if (value === 'Monthly') {
+      return stocksData.map(item => item.MonthlyActivities ? JSON.parse(item.MonthlyActivities) : []).flat();
+    } else if (value === 'Yearly') {
+      return stocksData.map(item => item.YearlyActivities ? JSON.parse(item.YearlyActivities) : []).flat();
+    }
+    return [];
+  }, [value, stocksData]);
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <AppBar
+          title="Stock Flow"
+          onMenuPress={handleDrawerOpen}
+          onBackPress={() => navigation.goBack()}
+        />
+        <View style={styles.loader}>
+          <ActivityIndicator size="large" color={theme.colors.primary} />
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -204,7 +262,11 @@ const reportsScreen = ({ navigation }) => {
           style={{ marginBottom: 16 }}
         />
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.cardsContainer}
+        >
           {progressData.map((entry, index) => (
             <View
               key={index}
@@ -216,63 +278,80 @@ const reportsScreen = ({ navigation }) => {
               <Text style={styles.chartTitle}>{entry.label}</Text>
               <ProgressChart
                 data={{ labels: [entry.label], data: [entry.value] }}
-                width={width / 3}
+                width={140}
                 height={180}
                 strokeWidth={10}
                 radius={30}
                 chartConfig={chartConfig}
                 hideLegend
-
               />
-              <Text style={{ color: theme.colors.primary, fontSize: 16 }}>
+              <Text style={{ 
+                color: theme.colors.primary, 
+                fontSize: 16,
+                fontWeight: 'bold'
+              }}>
                 {entry.count} units
+              </Text>
+              <Text style={{ 
+                color: theme.colors.secondary, 
+                fontSize: 14 
+              }}>
+                {(entry.value * 100).toFixed(1)}%
               </Text>
             </View>
           ))}
         </ScrollView>
 
-        <View style={styles.barChartCard}>
+        <View style={[
+          styles.barChartCard,
+          { backgroundColor: theme.colors.surface }
+        ]}>
           <Text style={styles.chartTitle}>Stock Distribution</Text>
-          {/* <BarChart
+          <StackedBarChart
             data={barChartData}
-            width={width - 60}
+            width={width - 32}
             height={220}
             chartConfig={chartConfig}
-            fromZero
-            showValuesOnTopOfBars
             style={styles.barChart}
-          /> */}
-          <StackedBarChart
-            data={stackedBarDataFromBarChartData}
-            width={width - width / 6}
-            height={220}
-            chartConfig={{
-              backgroundGradientFrom: theme.colors.tertiary,
-              backgroundGradientTo: theme.colors.primary,
-              color: () => '#fff',
-              labelColor: () => '#fff',
-              decimalPlaces: 0,
-            }}
-            style={{
-              borderRadius: 16
-            }}
-            fromZero
             showValuesOnTopOfBars
+            withHorizontalLabels
+            segments={4}
+            hideLegend
           />
+          <View style={styles.legend}>
+            {barChartData.legend.map((label, index) => (
+              <View key={index} style={styles.legendItem}>
+                <View style={[styles.legendColor, { backgroundColor: barChartData.barColors[index] }]} />
+                <Text style={styles.legendText}>{label}</Text>
+              </View>
+            ))}
+          </View>
         </View>
 
-        <Text style={styles.sectionTitle}>Stock History</Text>
-        <FlatList
-          data={stockHistory[value]}
-          keyExtractor={(_, i) => i.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.historyItem}>
-              <Text style={styles.historyText}>
-                • {item.date} - {item.action} ({item.amount})
-              </Text>
-            </View>
+        {/* <Text style={styles.sectionTitle}>Stock History</Text>
+        <ScrollView style={{ marginBottom: 16 }}>
+          <Text style={{ fontSize: 12, color: '#333' }}>
+            {JSON.stringify(stocksData, null, 2)}
+          </Text>
+        </ScrollView> */}
+
+        <Text style={styles.sectionTitle}>Activities</Text>
+        <ScrollView style={{ marginBottom: 16 }}>
+          {activities.length === 0 ? (
+            <Text style={{ textAlign: 'center', color: '#777', padding: 16 }}>
+              No activities found for the selected period.
+            </Text>
+          ) : (
+            activities.map((activity, index) => (
+              <View key={index} style={[styles.activityCard, { backgroundColor: theme.colors.surface }]}>
+                <Text style={styles.activityTitle}>{activity.StockStatus}: {activity.ProductName}</Text>
+                <Text style={styles.activityDetails}>Count: {activity.Count}</Text>
+                <Text style={styles.activityDetails}>Location: {activity.Location}</Text>
+                <Text style={styles.activityDetails}>Date: {new Date(activity.DatedOn).toLocaleDateString()}</Text>
+              </View>
+            ))
           )}
-        />
+        </ScrollView>
       </ScrollView>
 
       <FAB.Group
@@ -292,10 +371,11 @@ const reportsScreen = ({ navigation }) => {
         ]}
         onStateChange={({ open }) => setFabOpen(open)}
         visible={true}
+        fabStyle={{ backgroundColor: theme.colors.primary }}
         style={{
           position: "absolute",
-          bottom: height / 10,
-          right: width / 50,
+          bottom: 80,
+          right: 16,
         }}
       />
 
@@ -313,16 +393,24 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 64,
   },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  cardsContainer: {
+    paddingBottom: 8
+  },
   progressCard: {
     borderRadius: 16,
-    padding: 12,
+    padding: 16,
     marginRight: 12,
     elevation: 3,
     alignItems: "center",
     width: 160,
+    justifyContent: 'space-between'
   },
   barChartCard: {
-    backgroundColor: "white",
     borderRadius: 16,
     padding: 16,
     marginTop: 16,
@@ -342,12 +430,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    marginTop: 16,
-    marginBottom: 8,
+    marginTop: 24,
+    marginBottom: 12,
     color: "#202124",
   },
   historyItem: {
-    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 12,
     marginBottom: 8,
@@ -357,6 +444,42 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#444",
   },
+  legend: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  legendColor: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 4,
+  },
+  legendText: {
+    fontSize: 14,
+    color: "#444",
+  },
+  activityCard: {
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 8,
+    elevation: 3,
+  },
+  activityTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 4,
+  },
+  activityDetails: {
+    fontSize: 14,
+    color: "#555",
+    marginBottom: 2,
+  },
 });
 
-export default reportsScreen;
+export default ReportsScreen;
