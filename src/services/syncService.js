@@ -2,7 +2,7 @@ import NetInfo from '@react-native-community/netinfo';
 import { getUnsyncedInventory, markInventoryAsSynced, insertInventory } from './database';
 import axios from 'axios';
 
-const API_BASE_URL = 'https://3a04-202-160-169-18.ngrok-free.app/api'; // Change to your .NET API base URL
+const API_BASE_URL = 'https://8e72-202-160-169-18.ngrok-free.app/api'; // Change to your .NET API base URL
 
 export const syncInventory = async () => {
   const state = await NetInfo.fetch();

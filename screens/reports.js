@@ -13,7 +13,7 @@ import {
 import AppBar from "../src/components/layout/AppBar";
 import BottomNavigation from "../src/components/layout/BottomNavigation";
 import { SegmentedButtons, useTheme, FAB } from "react-native-paper";
-import { ProgressChart, BarChart } from "react-native-chart-kit";
+import { ProgressChart, BarChart, StackedBarChart } from "react-native-chart-kit";
 import RNHTMLtoPDF from "react-native-html-to-pdf";
 import Share from "react-native-share";
 import RNFS from "react-native-fs";
@@ -39,19 +39,19 @@ const reportsScreen = ({ navigation }) => {
 
   const dataMap = {
     Daily: [
-      { label: "Received", value: 0.6 },
-      { label: "Dispatched", value: 0.4 },
-      { label: "Transferred", value: 0.2 },
+      { label: "Received", value: 0.6, count: 60 },
+      { label: "Dispatched", value: 0.4, count: 40 },
+      { label: "Transferred", value: 0.2, count: 20 },
     ],
     Monthly: [
-      { label: "Received", value: 0.8 },
-      { label: "Dispatched", value: 0.5 },
-      { label: "Transferred", value: 0.3 },
+      { label: "Received", value: 0.8, count: 80 },
+      { label: "Dispatched", value: 0.5, count: 50 },
+      { label: "Transferred", value: 0.3, count: 30 },
     ],
     Yearly: [
-      { label: "Received", value: 0.9 },
-      { label: "Dispatched", value: 0.7 },
-      { label: "Transferred", value: 0.4 },
+      { label: "Received", value: 0.9, count: 90 },
+      { label: "Dispatched", value: 0.7, count: 70 },
+      { label: "Transferred", value: 0.4, count: 40 },
     ],
   };
 
@@ -74,6 +74,12 @@ const reportsScreen = ({ navigation }) => {
   const barChartData = {
     labels: progressData.map((d) => d.label),
     datasets: [{ data: progressData.map((d) => d.value * 100) }],
+  };
+  const stackedBarDataFromBarChartData = {
+    labels: barChartData.labels,
+    legend: ['Value'], // Single legend for each bar
+    data: barChartData.datasets[0].data.map(val => [Number(val)]),
+    barColors: ['#fff'], // Use white or your preferred color
   };
 
   const requestWritePermission = async () => {
@@ -134,10 +140,10 @@ const reportsScreen = ({ navigation }) => {
     const html = `<h1>${value} Stock Report</h1><ul>${history}</ul>`;
 
     try {
-         const downloadsPath =
-      Platform.OS === "android"
-        ? RNFS.DownloadDirectoryPath
-        : RNFS.DocumentDirectoryPath;
+      const downloadsPath =
+        Platform.OS === "android"
+          ? RNFS.DownloadDirectoryPath
+          : RNFS.DocumentDirectoryPath;
       const pdfFile = await RNHTMLtoPDF.convert({
         html,
         fileName: `${value}_stock_report`,
@@ -190,14 +196,18 @@ const reportsScreen = ({ navigation }) => {
                 radius={30}
                 chartConfig={chartConfig}
                 hideLegend
+
               />
+              <Text style={{ color: theme.colors.primary, fontSize: 16 }}>
+                {entry.count} units
+              </Text>
             </View>
           ))}
         </ScrollView>
 
         <View style={styles.barChartCard}>
           <Text style={styles.chartTitle}>Stock Distribution</Text>
-          <BarChart
+          {/* <BarChart
             data={barChartData}
             width={width - 60}
             height={220}
@@ -205,6 +215,23 @@ const reportsScreen = ({ navigation }) => {
             fromZero
             showValuesOnTopOfBars
             style={styles.barChart}
+          /> */}
+          <StackedBarChart
+            data={stackedBarDataFromBarChartData}
+            width={width - width / 6}
+            height={220}
+            chartConfig={{
+              backgroundGradientFrom: theme.colors.tertiary,
+              backgroundGradientTo: theme.colors.primary,
+              color: () => '#fff',
+              labelColor: () => '#fff',
+              decimalPlaces: 0,
+            }}
+            style={{
+              borderRadius: 16
+            }}
+            fromZero
+            showValuesOnTopOfBars
           />
         </View>
 
