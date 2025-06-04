@@ -1,5 +1,5 @@
 import { decryptData } from "./encryptionDecryptionService";
-import { addNewFormEndpoint, dashboardController, getAnalysisEndpoint, getInventoryDetailsEndpoint, getInventoryListEndpoint, getProductNameEndpoint, getSearchedListEndpoint, getSideBarDataEndpoint, getStockFlowDataEndpoint, getWarehouseNamesEndpoint, inventoryManagementController, loginEndpoint, searchBarAndFilterFunctionalityController, signUpEndpoint, stockInAndOutInboundOutboundMovementController, url, userAuthenticationAndRoleManagementController, warehouseLocationsController } from "./globals";
+import { addNewFormEndpoint, dashboardController, getAnalysisEndpoint, getInventoryDetailsEndpoint, getInventoryListEndpoint, getProductNameEndpoint, getSearchedListEndpoint, getSideBarDataEndpoint, getStockFlowDataEndpoint, getWarehouseNamesEndpoint, inventoryManagementController, loginEndpoint, reportsAndLogsController, searchBarAndFilterFunctionalityController, signUpEndpoint, stockInAndOutInboundOutboundMovementController, testReportDataEndpoint, url, userAuthenticationAndRoleManagementController, warehouseLocationsController } from "./globals";
 import { callStoredProcedure } from "./procedureService";
 
 async function addNewForm(values) {
@@ -66,6 +66,10 @@ async function getWarehouseNames (){
   const result =  await callStoredProcedure(`${url}${warehouseLocationsController}${getWarehouseNamesEndpoint}`, {});
   return result[0];
 }
+async function testReportData (values){
+  const result =  await callStoredProcedure(`${url}${reportsAndLogsController}${testReportDataEndpoint}`, values);
+  return result;
+}
 
 
 const apiServices = {
@@ -79,7 +83,8 @@ const apiServices = {
     getInventoryList,
     getInventoryDetails,
     getSearchedList,
-    getWarehouseNames
+    getWarehouseNames,
+    testReportData
 };
 
 export default apiServices;

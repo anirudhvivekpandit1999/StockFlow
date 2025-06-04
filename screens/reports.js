@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   useWindowDimensions,
@@ -17,13 +17,29 @@ import { ProgressChart, BarChart, StackedBarChart } from "react-native-chart-kit
 import RNHTMLtoPDF from "react-native-html-to-pdf";
 import Share from "react-native-share";
 import RNFS from "react-native-fs";
+import apiServices from "../src/services/apiServices";
 
 const reportsScreen = ({ navigation }) => {
   const [value, setValue] = useState("Daily");
   const [fabOpen, setFabOpen] = useState(false);
   const { width, height } = useWindowDimensions();
+  const [reportsData , setReportsData] = useState([]);
+  const [stocks , setStocks] = useState([]);
   const theme = useTheme();
+  useEffect(()=>{
+    fetchReportsData2();
+    console.log("Reports Fetched" , reportsData.filter(r=>r.Period === 'Daily').map(r => r.Recieved / r.Total)[0])
+  },[])
+  async function fetchReportsData2(){
+    try {
+      const reportData = await apiServices.testReportData({ WarehouseId: 1, TestDate: "2025-05-29" });
+      console.log("Fetched reports data:", JSON.parse(reportData[0].SummaryData).filter(r=>r.Period === 'Daily').map(r=>r.Transferred)[0  ]);
 
+      setReportsData(JSON.parse(reportData[0].SummaryData));
+    } catch (error) {
+      console.error("Error fetching reports data:", error);
+    }
+  }
   const handleDrawerOpen = () => {
     console.log("Drawer opened!");
   };
@@ -39,20 +55,30 @@ const reportsScreen = ({ navigation }) => {
 
   const dataMap = {
     Daily: [
-      { label: "Received", value: 0.6, count: 60 },
-      { label: "Dispatched", value: 0.4, count: 40 },
-      { label: "Transferred", value: 0.2, count: 20 },
+      { label: "Received"
+        , value: reportsData.filter(r=>r.Period === 'Daily').map(r => r.Recieved / r.Total)[0] || 0 ,
+         count: reportsData.filter(r=>r.Period === 'Daily').map(r => r.Recieved )[0] || 0},
+      { 
+        label: "Dispatched", 
+        value: reportsData.filter(r=>r.Period === 'Daily').map(r => r.Dispatched / r.Total)[0] || 0 , 
+        count: reportsData.filter(r=>r.Period === 'Daily').map(r=> r.Dispatched)[0] || 0
+      },
+      { 
+        label: "Transferred", 
+        value: 0.3, 
+        count: 9 
+      }
     ],
     Monthly: [
-      { label: "Received", value: 0.8, count: 80 },
+      { label: "Received", value: 0.7, count: 70 },
       { label: "Dispatched", value: 0.5, count: 50 },
-      { label: "Transferred", value: 0.3, count: 30 },
+      { label: "Transferred", value: 0.4, count: 40 }
     ],
     Yearly: [
-      { label: "Received", value: 0.9, count: 90 },
-      { label: "Dispatched", value: 0.7, count: 70 },
-      { label: "Transferred", value: 0.4, count: 40 },
-    ],
+      { label: "Received", value: 0.85, count: 850 },
+      { label: "Dispatched", value: 0.65, count: 650 },
+      { label: "Transferred", value: 0.45, count: 450 }
+    ]
   };
 
   const stockHistory = {

@@ -1,4 +1,4 @@
-export const url = 'https://8e72-202-160-169-18.ngrok-free.app/api/';
+export const url = 'https://3d10-202-160-169-18.ngrok-free.app/api/';
 export const stockInAndOutInboundOutboundMovementController = 'StockInAndOutInboundOutboundMovement/';
 export const addNewFormEndpoint = 'AddNewForm';
 export const getStockFlowDataEndpoint = 'GetStockFlowData';
@@ -16,6 +16,8 @@ export const searchBarAndFilterFunctionalityController = 'SearchBarAndFilterFunc
 export const getSearchedListEndpoint = 'GetSearchedList';
 export const warehouseLocationsController = 'WarehouseLocations/';
 export const getWarehouseNamesEndpoint = 'GetWarehouseLocations';
+export const reportsAndLogsController = 'ReportsAndLogs/';
+export const testReportDataEndpoint = 'TestReportData';
 
 
 export function toggleSideBar(sideBar) {
