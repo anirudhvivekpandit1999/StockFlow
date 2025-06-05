@@ -147,8 +147,8 @@ const Dashboard = () => {
           <TouchableOpacity
             onPress={() => navigation.navigate('Home')}
             style={{
-              width: 100,
-              height: 100,
+              width: 75,
+              height: 75,
               borderRadius: 8,
               alignSelf: 'flex-end',
               marginBottom: 8,
@@ -158,8 +158,8 @@ const Dashboard = () => {
             <ImageBackground
               source={require('../src/assets/background.png')}
               style={{
-                width: 100,
-                height: 100,
+                width: 75,
+                height: 75,
                 borderRadius: 8,
                 resizeMode: 'cover',
               }}
@@ -169,8 +169,8 @@ const Dashboard = () => {
           <TouchableOpacity
             onPress={() => navigation.navigate('Inventory')}
             style={{
-              width: 100,
-              height: 100,
+              width: 75,
+              height: 75,
               borderRadius: 8,
               alignSelf: 'flex-end',
               marginBottom: 8,
@@ -180,8 +180,8 @@ const Dashboard = () => {
             <ImageBackground
               source={require('../src/assets/Media.png')}
               style={{
-                width: 100,
-                height: 100,
+                width: 75,
+                height: 75,
                 borderRadius: 8,
                 resizeMode: 'cover',
               }}
@@ -191,8 +191,8 @@ const Dashboard = () => {
           <TouchableOpacity
             onPress={() => navigation.navigate('reports')}
             style={{
-              width: 100,
-              height: 100,
+              width: 75,
+              height: 75,
               borderRadius: 8,
               alignSelf: 'flex-end',
               marginBottom: 8,
@@ -202,14 +202,36 @@ const Dashboard = () => {
             <ImageBackground
               source={require('../src/assets/reports.png')}
               style={{
-                width: 100,
-                height: 100,
+                width: 75,
+                height: 75,
                 borderRadius: 8,
                 resizeMode: 'cover',
               }}
             />
           </TouchableOpacity>
-
+          
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ClientAndSupplierManagementScreen')}
+            style={{
+              width: 75,
+              height: 75,
+              borderRadius: 8,
+              alignSelf: 'flex-end',
+              marginBottom: 8,
+              overflow: 'hidden',
+            }}
+          >
+            <ImageBackground
+              source={require('../src/assets/ClientAndSupplierConnectionIcon.png')}
+              style={{
+                width: 75,
+                height: 75,
+                borderRadius: 8,
+                resizeMode: 'cover',
+              }}
+              onError={(error) => console.error('Error loading image:', error)}
+            />
+          </TouchableOpacity>
         </View>
 
         <View

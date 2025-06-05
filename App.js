@@ -17,6 +17,8 @@ import { FastField } from 'formik';
 import ProductDetails from './screens/ProductDetails';
 import  QRScanner  from './screens/QRScanner';
 import reportsScreen from './screens/reports';
+import ClientAndSupplierManagementScreen from './screens/ClientAndSupplierManagementScreen';
+import ClientAndSupplierDetails from './screens/ClientAndSupplierDetails';
 
 
 
@@ -85,6 +87,16 @@ export default function App() {
               component={reportsScreen}
               options={{ headerShown: false }}
             />
+            <Stack.Screen
+              name="ClientAndSupplierManagementScreen"
+              component={ClientAndSupplierManagementScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="ClientAndSupplierDetails"
+              component={ClientAndSupplierDetails}
+              options={{ headerShown: false }}
+              />
           </Stack.Navigator>
         </NavigationContainer>
       </GestureHandlerRootView>
