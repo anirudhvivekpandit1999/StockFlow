@@ -66,7 +66,7 @@ const ClientAndSupplierDetails = () => {
             }}
           />
           <Text style={styles.profileName}>{details.Name}</Text>
-          <Text style={styles.profileContact}>Contact: {details.Contact}</Text>
+          {/* <Text style={styles.profileContact}>Contact: {details.Contact}</Text> */}
           <Text style={styles.profileLocation}>Location: {details.Location}</Text>
         </View>
       </View>

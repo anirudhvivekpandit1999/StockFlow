@@ -52,7 +52,7 @@ const ClientAndSupplierManagementScreen = () => {
             style={styles.card}
           >
             <Text style={styles.title}>{item.Name}</Text>
-            <Text style={styles.details}>Contact: {item.Contact}</Text>
+            {/* <Text style={styles.details}>Contact: {item.Contact}</Text> */}
             <Text style={styles.details}>Location: {item.Location}</Text>
           </TouchableOpacity>
         ))}
