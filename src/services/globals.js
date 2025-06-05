@@ -18,7 +18,8 @@ export const warehouseLocationsController = 'WarehouseLocations/';
 export const getWarehouseNamesEndpoint = 'GetWarehouseLocations';
 export const reportsAndLogsController = 'ReportsAndLogs/';
 export const testReportDataEndpoint = 'TestReportData';
-
+export const clientsAndSuppliersController = 'SupplierAndClientManagement/';
+export const getAllClientsAndSuppliersDataEndpoint = 'GetAllClientsAndSuppliersData';
 
 export function toggleSideBar(sideBar) {
     return !sideBar;

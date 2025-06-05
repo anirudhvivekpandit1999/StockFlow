@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 import AppBar from "../src/components/layout/AppBar";
@@ -7,11 +7,14 @@ import SideBar from "../src/components/common/SideBar";
 import { ScrollView } from "react-native-gesture-handler";
 import BottomNavigation from "../src/components/layout/BottomNavigation";
 import { TouchableOpacity } from "react-native";
+import apiServices from "../src/services/apiServices";
+import { GlobalContext } from "../src/services/GlobalContext";
 
 const ClientAndSupplierManagementScreen = () => {
   const [sideBar, showSidebar] = useState(false);
   const [clientsAndSuppliers, setClientsAndSuppliers] = useState([]);
   const navigation = useNavigation();
+  const {warehouseId} = useContext(GlobalContext);
 
   useEffect(() => {
     // Replace API call with dummy data
@@ -22,8 +25,16 @@ const ClientAndSupplierManagementScreen = () => {
       { Name: "Supplier D", Contact: "111-222-3333", Location: "Houston" },
     ];
     setClientsAndSuppliers(dummyData);
+    fetchClientsAndSuppliersList();
   }, []);
-
+  async function fetchClientsAndSuppliersList(){
+    try {
+      const result = await apiServices.getAllClientsAndSuppliersData({WarehouseId : warehouseId})
+      console.log("Clients and Suppliers Data:", result.Data);
+    } catch (error) {
+      console.error("Error fetching clients and suppliers data:", error);
+    }
+  }
   function toggleSideBar() {
     showSidebar(true);
   }
