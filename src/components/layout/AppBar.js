@@ -1,12 +1,14 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, FlatList } from 'react-native';
 import { StyleSheet, View, Text, Animated, Dimensions } from 'react-native';
 import { Appbar, Searchbar, useTheme } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import apiServices from '../../services/apiServices';
 import { use } from 'react';
 import { GlobalContext } from '../../services/GlobalContext';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Image } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -21,6 +23,33 @@ const dummyList = [
   'Blueberry',
   'Watermelon',
   'Kiwi',
+];
+
+const notificationsDemo = [
+  {
+    id: 1,
+    type: 'Alert',
+    header: 'Stock Low Alert',
+    content: 'Stock for Widget A is below minimum threshold.',
+    timestamp: '2 min ago',
+    expanded: false,
+  },
+  {
+    id: 2,
+    type: 'Message',
+    header: 'New Message',
+    content: 'Supplier X has sent you a new message.',
+    timestamp: '10 min ago',
+    expanded: false,
+  },
+  {
+    id: 3,
+    type: 'Reminder',
+    header: 'Sync Reminder',
+    content: 'It’s time to sync your inventory data.',
+    timestamp: '1 hour ago',
+    expanded: false,
+  },
 ];
 
 const AppBar = ({
@@ -43,6 +72,9 @@ const AppBar = ({
   const [filter, setFilter] = useState('All');
   const [dummyList , setDummyList] = useState([]);
   const {userId , warehouseId} = useContext(GlobalContext);
+  const [notificationsVisible, setNotificationsVisible] = useState(false);
+  const [notifications, setNotifications] = useState(notificationsDemo);
+
   useEffect(()=>{
     getDummyList();
   }, [filter])
@@ -90,8 +122,27 @@ const AppBar = ({
     outputRange: [1, 0],
   });
 
+  const toggleNotificationExpand = (id) => {
+    setNotifications(notifications => notifications.map(n =>
+      n.id === id ? { ...n, expanded: !n.expanded } : n
+    ));
+  };
+
+  // Remove notification by id
+  const removeNotification = (id) => {
+    setNotifications(notifications => notifications.filter(n => n.id !== id));
+  };
+
   return (
     <View style={styles.container}>
+      {/* Overlay for closing notifications dropdown */}
+      {notificationsVisible && (
+        <TouchableOpacity
+          style={styles.overlay}
+          activeOpacity={1}
+          onPress={() => setNotificationsVisible(false)}
+        />
+      )}
       <View style={[
         styles.headerContainer,
         {
@@ -158,6 +209,15 @@ const AppBar = ({
           )}
 
           <View style={styles.actionsContainer}>
+            {/* Notification Bell Icon */}
+            <Appbar.Action
+              icon={() => (
+                <MaterialCommunityIcons name="bell-outline" size={24} color="white" />
+              )}
+              onPress={() => setNotificationsVisible(!notificationsVisible)}
+              color="white"
+              style={styles.actionButton}
+            />
             <Appbar.Action
               icon="filter-variant"
               onPress={() => setFilterVisible(!filterVisible)}
@@ -201,6 +261,58 @@ const AppBar = ({
           </View>
         )}
       </View>
+
+      {/* Notification Dropdown */}
+      {notificationsVisible && (
+        <View style={styles.notificationsDropdown}>
+          <Text style={styles.notificationsHeader}>Notifications</Text>
+          {notifications.length === 0 ? (
+            <Text style={styles.noNotificationsText}>No notifications</Text>
+          ) : (
+            <FlatList
+              data={notifications}
+              keyExtractor={notif => notif.id.toString()}
+              style={{ maxHeight: 340 }}
+              renderItem={({ item: notif }) => (
+                <View style={styles.notificationItem}>
+                  <View style={styles.notificationHeaderRow}>
+                    <Image style={styles.notificationAppIcon} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.notificationHeaderText}>{notif.header}</Text>
+                      <Text style={styles.notificationTypeText}>{notif.type}</Text>
+                    </View>
+                    <Text style={styles.notificationTimestamp}>{notif.timestamp}</Text>
+                    <TouchableOpacity onPress={() => toggleNotificationExpand(notif.id)}>
+                      <MaterialCommunityIcons
+                        name={notif.expanded ? 'chevron-up' : 'chevron-down'}
+                        size={24}
+                        color="#888"
+                        style={{ marginLeft: 4 }}
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => removeNotification(notif.id)}>
+                      <MaterialCommunityIcons
+                        name="trash-can-outline"
+                        size={22}
+                        color="#d32f2f"
+                        style={{ marginLeft: 8 }}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  {notif.expanded && (
+                    <View style={styles.notificationContentRow}>
+                      {notif.largeIcon && (
+                        <Image source={notif.largeIcon} style={styles.notificationLargeIcon} />
+                      )}
+                      <Text style={styles.notificationContentText}>{notif.content}</Text>
+                    </View>
+                  )}
+                </View>
+              )}
+            />
+          )}
+        </View>
+      )}
 
       {isSearchVisible && (
         <View style={styles.resultsContainer}>
@@ -291,11 +403,12 @@ const styles = StyleSheet.create({
   actionsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    
   },
   actionButton: {
-    margin: 5,
+    margin: 0,
     borderRadius: 20,
-    padding: 5
+    padding: 0,
   },
   resultsContainer: {
     backgroundColor: 'white',
@@ -370,6 +483,94 @@ const styles = StyleSheet.create({
   },
   filterOptionSelected: {
     backgroundColor: '#f0e9ff',
+  },
+  notificationsDropdown: {
+    position: 'absolute',
+    top: 56,
+    right: 8,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 12,
+    zIndex: 2000,
+    minWidth: 320,
+    maxHeight: 400,
+  },
+  notificationsHeader: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: '#333',
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+  },
+  noNotificationsText: {
+    color: '#888',
+    fontSize: 14,
+    padding: 16,
+    textAlign: 'center',
+  },
+  notificationItem: {
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#eee',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  notificationHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  notificationAppIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    marginRight: 10,
+    backgroundColor: '#eee',
+  },
+  notificationHeaderText: {
+    fontWeight: 'bold',
+    fontSize: 15,
+    color: '#222',
+  },
+  notificationTypeText: {
+    fontSize: 12,
+    color: '#888',
+  },
+  notificationTimestamp: {
+    fontSize: 12,
+    color: '#888',
+    marginLeft: 8,
+  },
+  notificationContentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  notificationLargeIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    marginRight: 12,
+    backgroundColor: '#eee',
+  },
+  notificationContentText: {
+    fontSize: 14,
+    color: '#444',
+    flex: 1,
+    flexWrap: 'wrap',
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.01)', // almost transparent, just to catch touches
+    zIndex: 1999,
   },
 });
 
