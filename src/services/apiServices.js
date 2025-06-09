@@ -1,5 +1,5 @@
 import { decryptData } from "./encryptionDecryptionService";
-import { addNewFormEndpoint, clientsAndSuppliersController, dashboardController, getAllClientsAndSuppliersDataEndpoint, getAnalysisEndpoint, getInventoryDetailsEndpoint, getInventoryListEndpoint, getProductNameEndpoint, getSearchedListEndpoint, getSideBarDataEndpoint, getStockFlowDataEndpoint, getWarehouseNamesEndpoint, inventoryManagementController, loginEndpoint, orderManagementController, reportsAndLogsController, searchBarAndFilterFunctionalityController, sendOrderRequestEndpoint, signUpEndpoint, stockInAndOutInboundOutboundMovementController, testReportDataEndpoint, url, userAuthenticationAndRoleManagementController, warehouseLocationsController } from "./globals";
+import { addNewFormEndpoint, clientsAndSuppliersController, dashboardController, deleteNotificationByIdEndpoint, getAllClientsAndSuppliersDataEndpoint, getAnalysisEndpoint, getInventoryDetailsEndpoint, getInventoryListEndpoint, getNotificationsEndpoint, getProductNameEndpoint, getSearchedListEndpoint, getSideBarDataEndpoint, getStockFlowDataEndpoint, getWarehouseNamesEndpoint, inventoryManagementController, loginEndpoint, notificationandAlertsController, orderManagementController, reportsAndLogsController, searchBarAndFilterFunctionalityController, sendOrderRequestEndpoint, signUpEndpoint, stockInAndOutInboundOutboundMovementController, testReportDataEndpoint, url, userAuthenticationAndRoleManagementController, warehouseLocationsController } from "./globals";
 import { callStoredProcedure } from "./procedureService";
 
 async function addNewForm(values) {
@@ -81,6 +81,18 @@ async function sendOrderRequest(values) {
   return result
 }
 
+async function getNotifications(values){
+  const result = await callStoredProcedure(`${url}${notificationandAlertsController}${getNotificationsEndpoint}`,values)
+  return result[0];
+}
+
+async function deleteNotificationById(values) {
+  const result = await callStoredProcedure(`${url}${notificationandAlertsController}${deleteNotificationByIdEndpoint}`,
+    values
+  )
+  return result[0]
+}
+
 
 
 const apiServices = {
@@ -97,7 +109,9 @@ const apiServices = {
   getWarehouseNames,
   testReportData,
   getAllClientsAndSuppliersData,
-  sendOrderRequest
+  sendOrderRequest,
+  getNotifications,
+  deleteNotificationById
 };
 
 export default apiServices;

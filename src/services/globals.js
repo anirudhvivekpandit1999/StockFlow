@@ -1,4 +1,4 @@
-export const url = 'https://a637-27-107-162-138.ngrok-free.app/api/';
+export const url = 'https://2bd7-27-107-162-138.ngrok-free.app/api/';
 export const stockInAndOutInboundOutboundMovementController = 'StockInAndOutInboundOutboundMovement/';
 export const addNewFormEndpoint = 'AddNewForm';
 export const getStockFlowDataEndpoint = 'GetStockFlowData';
@@ -22,6 +22,9 @@ export const clientsAndSuppliersController = 'SupplierAndClientManagement/';
 export const getAllClientsAndSuppliersDataEndpoint = 'GetAllClientsAndSuppliersData';
 export const orderManagementController = 'OrderManagement/'
 export const sendOrderRequestEndpoint = 'SendOrderRequest'
+export const notificationandAlertsController = 'NotificationsAndAlerts/'
+export const getNotificationsEndpoint = 'GetNotifications'
+export const deleteNotificationByIdEndpoint = 'DeleteNotificationById'
 export function toggleSideBar(sideBar) {
     return !sideBar;
   } 

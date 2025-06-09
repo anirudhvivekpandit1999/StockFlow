@@ -1,56 +1,13 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { TouchableOpacity, FlatList } from 'react-native';
-import { StyleSheet, View, Text, Animated, Dimensions } from 'react-native';
+import { TouchableOpacity, FlatList, StyleSheet, View, Text, Animated, Dimensions, Image } from 'react-native';
 import { Appbar, Searchbar, useTheme } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import apiServices from '../../services/apiServices';
-import { use } from 'react';
 import { GlobalContext } from '../../services/GlobalContext';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Image } from 'react-native';
 
 const { width } = Dimensions.get('window');
-
-const dummyList = [
-  'Apple',
-  'Banana',
-  'Orange',
-  'Grapes',
-  'Pineapple',
-  'Mango',
-  'Strawberry',
-  'Blueberry',
-  'Watermelon',
-  'Kiwi',
-];
-
-const notificationsDemo = [
-  {
-    id: 1,
-    type: 'Alert',
-    header: 'Stock Low Alert',
-    content: 'Stock for Widget A is below minimum threshold.',
-    timestamp: '2 min ago',
-    expanded: false,
-  },
-  {
-    id: 2,
-    type: 'Message',
-    header: 'New Message',
-    content: 'Supplier X has sent you a new message.',
-    timestamp: '10 min ago',
-    expanded: false,
-  },
-  {
-    id: 3,
-    type: 'Reminder',
-    header: 'Sync Reminder',
-    content: 'It’s time to sync your inventory data.',
-    timestamp: '1 hour ago',
-    expanded: false,
-  },
-];
 
 const AppBar = ({
   title,
@@ -70,23 +27,32 @@ const AppBar = ({
   const [searchAnimation] = useState(new Animated.Value(0));
   const [filterVisible, setFilterVisible] = useState(false);
   const [filter, setFilter] = useState('All');
-  const [dummyList , setDummyList] = useState([]);
-  const {userId , warehouseId} = useContext(GlobalContext);
+  const [dummyList, setDummyList] = useState([]);
+  const { userId, warehouseId } = useContext(GlobalContext);
   const [notificationsVisible, setNotificationsVisible] = useState(false);
-  const [notifications, setNotifications] = useState(notificationsDemo);
-
-  useEffect(()=>{
-    getDummyList();
-  }, [filter])
-  async function getDummyList(){
-
-    const result = await apiServices.getSearchedList({StockStatus : filter , UserId : userId , WarehouseId : warehouseId})
-    console.log("Dummy List Data: ", (JSON.parse(result.Data)).map(item => item.ProductName));
-    setDummyList((JSON.parse(result.Data)).map(item => item.ProductName));
-  }
+  const [notifications, setNotifications] = useState([]);
   const navigation = useNavigation();
 
-  const toggleSearch = () => {  
+  useEffect(() => {
+    getDummyList();
+  }, [filter]);
+
+  useEffect(() => {
+    getNotifications();
+  }, []);
+
+  const getNotifications = async () => {
+    const result = await apiServices.getNotifications({ UserId: userId });
+    const parsed = JSON.parse(result.Data).map(n => ({ ...n, expanded: false }));
+    setNotifications(parsed);
+  };
+
+  const getDummyList = async () => {
+    const result = await apiServices.getSearchedList({ StockStatus: filter, UserId: userId, WarehouseId: warehouseId });
+    setDummyList(JSON.parse(result.Data).map(item => item.ProductName));
+  };
+
+  const toggleSearch = () => {
     const toValue = isSearchVisible ? 0 : 1;
     Animated.timing(searchAnimation, {
       toValue,
@@ -103,9 +69,7 @@ const AppBar = ({
 
   const handleSearchChange = (query) => {
     setSearch(query);
-    if (onSearchChange) {
-      onSearchChange(query);
-    }
+    if (onSearchChange) onSearchChange(query);
   };
 
   const filteredList = dummyList.filter(item =>
@@ -123,77 +87,39 @@ const AppBar = ({
   });
 
   const toggleNotificationExpand = (id) => {
-    setNotifications(notifications => notifications.map(n =>
-      n.id === id ? { ...n, expanded: !n.expanded } : n
-    ));
+    setNotifications(prev =>
+      prev.map(n =>
+        n.NotificationId === id ? { ...n, expanded: !n.expanded } : n
+      )
+    );
   };
 
-  // Remove notification by id
-  const removeNotification = (id) => {
-    setNotifications(notifications => notifications.filter(n => n.id !== id));
+  const removeNotification = async (id) => {
+    var result = await apiServices.deleteNotificationById({ NotificationId: id, UserId: userId });
+    const parsed = (JSON.parse(result.Data) || []).map(n => ({ ...n, expanded: false }));
+    setNotifications(parsed)
   };
 
   return (
     <View style={styles.container}>
-      {/* Overlay for closing notifications dropdown */}
       {notificationsVisible && (
-        <TouchableOpacity
-          style={styles.overlay}
-          activeOpacity={1}
-          onPress={() => setNotificationsVisible(false)}
-        />
+        <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={() => setNotificationsVisible(false)} />
       )}
-      <View style={[
-        styles.headerContainer,
-        {
-          paddingTop: insets.top,
-          backgroundColor: theme.colors.primary,
-        }
-      ]}>
-        <Appbar.Header
-          style={[
-            styles.header,
-            {
-              backgroundColor: 'transparent',
-              height: 56,
-              paddingTop: 0,
-            }
-          ]}
-        >
+
+      <View style={[styles.headerContainer, { paddingTop: insets.top, backgroundColor: theme.colors.primary }]}>
+        <Appbar.Header style={[styles.header, { backgroundColor: 'transparent', height: 56, paddingTop: 0 }]}>
           {showBack ? (
-            <Appbar.BackAction 
-              onPress={onBackPress} 
-              color="white"
-              style={styles.actionButton}
-            />
+            <Appbar.BackAction onPress={onBackPress} color="white" style={styles.actionButton} />
           ) : (
-            <Appbar.Action 
-              icon="menu" 
-              onPress={onMenuPress} 
-              color="white"
-              style={styles.actionButton}
-            />
+            <Appbar.Action icon="menu" onPress={onMenuPress} color="white" style={styles.actionButton} />
           )}
 
-          <Animated.View 
-            style={[
-              styles.titleContainer,
-              { opacity: titleOpacity }
-            ]}
-          >
-            <Appbar.Content 
-              title={title} 
-              titleStyle={styles.title} 
-            />
+          <Animated.View style={[styles.titleContainer, { opacity: titleOpacity }]}>
+            <Appbar.Content title={title} titleStyle={styles.title} />
           </Animated.View>
 
           {isSearchVisible && (
-            <Animated.View 
-              style={[
-                styles.animatedSearchContainer,
-                { width: searchBarWidth }
-              ]}
-            >
+            <Animated.View style={[styles.animatedSearchContainer, { width: searchBarWidth }]}>
               <Searchbar
                 placeholder={searchPlaceholder}
                 onChangeText={handleSearchChange}
@@ -209,15 +135,18 @@ const AppBar = ({
           )}
 
           <View style={styles.actionsContainer}>
-            {/* Notification Bell Icon */}
-            <Appbar.Action
-              icon={() => (
+            <View style={{ position: 'relative', marginRight: 8 }}>
+              <TouchableOpacity onPress={() => setNotificationsVisible(!notificationsVisible)} style={styles.actionButton}>
                 <MaterialCommunityIcons name="bell-outline" size={24} color="white" />
-              )}
-              onPress={() => setNotificationsVisible(!notificationsVisible)}
-              color="white"
-              style={styles.actionButton}
-            />
+                {notifications.length > 0 && (
+                  <View style={styles.notificationBadge}>
+                    <Text style={styles.notificationBadgeText}>
+                      {notifications.length > 9 ? '9+' : notifications.length}
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
             <Appbar.Action
               icon="filter-variant"
               onPress={() => setFilterVisible(!filterVisible)}
@@ -232,7 +161,6 @@ const AppBar = ({
                 style={styles.actionButton}
               />
             )}
-
             {!isSearchVisible && actions.map((action, index) => (
               <Appbar.Action
                 key={index}
@@ -244,6 +172,7 @@ const AppBar = ({
             ))}
           </View>
         </Appbar.Header>
+
         {filterVisible && (
           <View style={styles.filterDropdown}>
             {['All', 'Dispatched', 'Recieved', 'Transferred'].map(option => (
@@ -262,7 +191,6 @@ const AppBar = ({
         )}
       </View>
 
-      {/* Notification Dropdown */}
       {notificationsVisible && (
         <View style={styles.notificationsDropdown}>
           <Text style={styles.notificationsHeader}>Notifications</Text>
@@ -271,18 +199,17 @@ const AppBar = ({
           ) : (
             <FlatList
               data={notifications}
-              keyExtractor={notif => notif.id.toString()}
+              keyExtractor={notif => notif.NotificationId?.toString()}
               style={{ maxHeight: 340 }}
               renderItem={({ item: notif }) => (
                 <View style={styles.notificationItem}>
                   <View style={styles.notificationHeaderRow}>
                     <Image style={styles.notificationAppIcon} />
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.notificationHeaderText}>{notif.header}</Text>
-                      <Text style={styles.notificationTypeText}>{notif.type}</Text>
+                      <Text style={styles.notificationHeaderText}>{notif.NotificationHeader}</Text>
+                      <Text style={styles.notificationTypeText}>{notif.NotificationType || 'Alert'}</Text>
                     </View>
-                    <Text style={styles.notificationTimestamp}>{notif.timestamp}</Text>
-                    <TouchableOpacity onPress={() => toggleNotificationExpand(notif.id)}>
+                    <TouchableOpacity onPress={() => toggleNotificationExpand(notif.NotificationId)}>
                       <MaterialCommunityIcons
                         name={notif.expanded ? 'chevron-up' : 'chevron-down'}
                         size={24}
@@ -290,7 +217,7 @@ const AppBar = ({
                         style={{ marginLeft: 4 }}
                       />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => removeNotification(notif.id)}>
+                    <TouchableOpacity onPress={() => removeNotification(notif.NotificationId)}>
                       <MaterialCommunityIcons
                         name="trash-can-outline"
                         size={22}
@@ -301,10 +228,9 @@ const AppBar = ({
                   </View>
                   {notif.expanded && (
                     <View style={styles.notificationContentRow}>
-                      {notif.largeIcon && (
-                        <Image source={notif.largeIcon} style={styles.notificationLargeIcon} />
-                      )}
-                      <Text style={styles.notificationContentText}>{notif.content}</Text>
+                      <Text style={styles.notificationContentText}>
+                        {notif.NotificationText || "No content available"}
+                      </Text>
                     </View>
                   )}
                 </View>
@@ -322,7 +248,6 @@ const AppBar = ({
                 {filteredList.length} result{filteredList.length !== 1 ? 's' : ''} found
               </Text>
             )}
-            
             {filteredList.length === 0 && search.length > 0 ? (
               <View style={styles.noResultsContainer}>
                 <Text style={styles.noResultsText}>No results found</Text>
@@ -330,7 +255,7 @@ const AppBar = ({
               </View>
             ) : (
               filteredList.map((item, idx) => (
-                <TouchableOpacity onPress={() => navigation.navigate('ProductDetails',{name : 'Laptop'})} key={idx} style={styles.resultItem}>
+                <TouchableOpacity onPress={() => navigation.navigate('ProductDetails', { name: item })} key={idx} style={styles.resultItem}>
                   <Text style={styles.resultText}>{item}</Text>
                 </TouchableOpacity>
               ))
@@ -395,6 +320,26 @@ const styles = StyleSheet.create({
     shadowRadius: 2.22,
     height: 40,
   },
+  notificationBadge: {
+  position: 'absolute',
+  top: -4,
+  right: -4,
+  backgroundColor: '#d32f2f',
+  borderRadius: 8,
+  paddingHorizontal: 4,
+  paddingVertical: 1,
+  minWidth: 16,
+  height: 16,
+  justifyContent: 'center',
+  alignItems: 'center',
+  zIndex: 10,
+},
+notificationBadgeText: {
+  color: 'white',
+  fontSize: 10,
+  fontWeight: 'bold',
+  textAlign: 'center',
+},
   searchInput: {
     fontSize: 14,
     color: '#333',
@@ -403,7 +348,7 @@ const styles = StyleSheet.create({
   actionsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    
+
   },
   actionButton: {
     margin: 0,
@@ -573,5 +518,6 @@ const styles = StyleSheet.create({
     zIndex: 1999,
   },
 });
+
 
 export default AppBar;
