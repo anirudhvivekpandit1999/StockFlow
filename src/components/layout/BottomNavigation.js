@@ -122,23 +122,33 @@ const BottomNavigation = ({ onOpen }) => {
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: '#00000055',
+    backgroundColor: '#00000022',
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: 'white',
-    padding: 16,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
+    backgroundColor: '#fafdff',
+    padding: 18,
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
+    shadowColor: '#b3c6e6',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 0,
+    borderWidth: 1,
+    borderColor: '#e3eaf3',
   },
   option: {
-    paddingVertical: 12,
-    borderBottomColor: '#ddd',
+    paddingVertical: 16,
+    borderBottomColor: '#e3eaf3',
     borderBottomWidth: 1,
+    alignItems: 'center',
   },
   optionText: {
     fontSize: 16,
-    color: '#333',
+    color: '#3a6ea8',
+    fontWeight: '500',
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
   },
 });
 

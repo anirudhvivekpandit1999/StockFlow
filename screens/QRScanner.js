@@ -4,7 +4,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, StyleSheet, Text, Alert } from 'react-native';
 import { Camera, CameraType } from 'react-native-camera-kit';
 
-const PURPLE = '#7c3aed';
+const ACCENT = '#3a6ea8';
+const SOFT_BG = 'rgba(255,255,255,0.85)';
+const SOFT_GRAY = '#7a8ca3';
 
 const QRScanner = () => {
   const [scanned, setScanned] = useState(false);
@@ -44,17 +46,19 @@ const QRScanner = () => {
         scanBarcode={true}
         onReadCode={onReadCode}
         showFrame={true}
-        laserColor={PURPLE}
-        frameColor={PURPLE}
+        laserColor={ACCENT}
+        frameColor={ACCENT}
         flashMode="auto"
         focusMode="on"
         zoomMode="on"
       />
-      
+
       <View style={styles.overlayTop}>
-        <Text style={styles.title}>Scan a QR Code</Text>
+        <View >
+          <Text style={styles.title}>Scan </Text>
+        </View>
         <Text style={styles.subtitle}>
-          Align the QR code within the purple frame
+          Align the QR code within the blue frame
         </Text>
         {scannedData ? (
           <View style={styles.resultContainer}>
@@ -86,42 +90,68 @@ const styles = StyleSheet.create({
     zIndex: 10,
     paddingHorizontal: 20,
   },
+  headerPill: {
+    // backgroundColor: SOFT_BG,
+    // borderRadius: 22,
+    // paddingHorizontal: 28,
+    // paddingVertical: 8,
+    // marginBottom: 12,
+    // shadowColor: '#b3c6e6',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.08,
+    // shadowRadius: 8,
+    // elevation: 2,
+  },
   title: {
-    color: PURPLE,
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    color: ACCENT,
+    fontSize: 22,
+    fontWeight: '500',
     textAlign: 'center',
+    letterSpacing: 0.1,
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
   },
   subtitle: {
-    color: '#fff',
-    fontSize: 16,
+    color: SOFT_GRAY,
+    fontSize: 15,
     marginBottom: 8,
     textAlign: 'center',
+    fontWeight: '400',
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
   },
   resultContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    padding: 20,
-    borderRadius: 10,
-    marginTop: 20,
+    backgroundColor: SOFT_BG,
+    padding: 22,
+    borderRadius: 18,
+    marginTop: 22,
     alignItems: 'center',
+    shadowColor: '#b3c6e6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 1,
   },
   resultText: {
-    color: PURPLE,
-    fontSize: 16,
-    fontWeight: 'bold',
+    color: ACCENT,
+    fontSize: 15,
+    fontWeight: '500',
     marginBottom: 5,
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
   },
   resultValue: {
-    color: '#fff',
+    color: '#222',
     fontSize: 14,
     textAlign: 'center',
     marginBottom: 10,
+    fontWeight: '400',
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
   },
   resetText: {
-    color: PURPLE,
+    color: ACCENT,
     fontSize: 14,
     textDecorationLine: 'underline',
+    fontWeight: '400',
+    marginTop: 2,
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
   },
 });
 

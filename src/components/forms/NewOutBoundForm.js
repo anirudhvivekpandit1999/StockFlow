@@ -137,25 +137,34 @@ const NewOutboundForm = ({ onDismiss }) => {
 
 const styles = StyleSheet.create({
   modalContent: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 16,
+    backgroundColor: "#fafdff",
+    padding: 26,
+    borderRadius: 22,
     margin: 16,
-    elevation: 99,
+    elevation: 0,
     zIndex: 9999,
     maxHeight: '80%',
+    shadowColor: '#b3c6e6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e3eaf3',
   },
   formContainer: {
-    gap: 12,
+    gap: 16,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    gap: 12,
-    marginTop: 24,
+    gap: 14,
+    marginTop: 28,
   },
   button: {
-    minWidth: 80,
+    minWidth: 90,
+    borderRadius: 16,
+    fontWeight: '500',
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
   },
 });
 

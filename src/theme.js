@@ -4,16 +4,16 @@ export const theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primary: '#4285F4',
-    accent: '#1a73e8',
-    inbound: '#1a73e8',
-    outbound: '#ea4335',
-    transfer: '#fbbc04',
-    background: '#f8f9fa',
-    surface: '#ffffff',
-    text: '#202124',
-    subtext: '#5f6368',
-    border: '#dadce0',
+    primary: '#3a6ea8', // soft blue
+    accent: '#7a8ca3', // soft gray-blue
+    inbound: '#3a6ea8',
+    outbound: '#b3c6e6',
+    transfer: '#eaf2fb',
+    background: '#f7fafd',
+    surface: '#fff',
+    text: '#222',
+    subtext: '#7a8ca3',
+    border: '#e3eaf3',
   },
-  roundness: 8,
+  roundness: 18,
 };

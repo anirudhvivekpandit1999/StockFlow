@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Card, Title, Caption } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -43,50 +43,72 @@ const ActionCard = ({
 
 const styles = StyleSheet.create({
   card: {
-    marginVertical: 8,
-    elevation: 2,
+    marginVertical: 12,
+    elevation: 0,
+    backgroundColor: '#fff',
+    borderRadius: 22,
+    shadowColor: '#b3c6e6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e3eaf3',
   },
   title: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '500',
+    color: '#3a6ea8',
+    letterSpacing: 0.1,
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
   },
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 14,
   },
   button: {
     flexDirection: 'row',
     borderRadius: 25,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingVertical: 13,
+    paddingHorizontal: 24,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#eaf2fb',
+    shadowColor: '#b3c6e6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 0,
   },
   buttonText: {
-    color: '#5f6368',
+    color: '#3a6ea8',
     fontWeight: '500',
+    fontSize: 15,
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
   },
   buttonIcon: {
-    marginRight: 5,
+    marginRight: 7,
   },
   infoContainer: {
-    marginLeft: 15,
+    marginLeft: 18,
     flex: 1,
   },
   caption: {
     fontSize: 12,
-    color: '#5f6368',
+    color: '#7a8ca3',
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
   },
   value: {
     fontSize: 14,
-    color: '#202124',
+    color: '#222',
     fontWeight: '500',
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
   },
   time: {
     fontSize: 12,
-    color: '#5f6368',
+    color: '#7a8ca3',
     marginTop: 4,
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
   },
 });
 

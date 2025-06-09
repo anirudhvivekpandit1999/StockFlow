@@ -61,12 +61,12 @@ const ReportsScreen = ({ navigation }) => {
   };
 
   const chartConfig = {
-    backgroundGradientFrom: "white",
-    backgroundGradientTo: "white",
-    color: (opacity = 1) => `rgba(136, 84, 208, ${opacity})`,
-    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-    style: { borderRadius: 16 },
-    propsForBackgroundLines: { stroke: "#e3e3e3" },
+    backgroundGradientFrom: "#fff",
+    backgroundGradientTo: "#fff",
+    color: (opacity = 1) => `rgba(58, 110, 168, ${opacity})`,
+    labelColor: (opacity = 1) => `rgba(34, 34, 34, ${opacity})`,
+    style: { borderRadius: 18 },
+    propsForBackgroundLines: { stroke: "#e3eaf3" },
     barPercentage: 0.5,
   };
 
@@ -251,16 +251,18 @@ const ReportsScreen = ({ navigation }) => {
       />
 
       <ScrollView contentContainerStyle={styles.content}>
-        <SegmentedButtons
-          value={value}
-          onValueChange={setValue}
-          buttons={[
-            { value: "Daily", label: "Daily" },
-            { value: "Monthly", label: "Monthly" },
-            { value: "Yearly", label: "Yearly" },
-          ]}
-          style={{ marginBottom: 16 }}
-        />
+        <View style={styles.segmentedPillWrap}>
+          <SegmentedButtons
+            value={value}
+            onValueChange={setValue}
+            buttons={[
+              { value: "Daily", label: "Daily" },
+              { value: "Monthly", label: "Monthly" },
+              { value: "Yearly", label: "Yearly" },
+            ]}
+            style={styles.segmentedPill}
+          />
+        </View>
 
         <ScrollView 
           horizontal 
@@ -270,10 +272,7 @@ const ReportsScreen = ({ navigation }) => {
           {progressData.map((entry, index) => (
             <View
               key={index}
-              style={[
-                styles.progressCard,
-                { backgroundColor: theme.colors.surface },
-              ]}
+              style={styles.progressCard}
             >
               <Text style={styles.chartTitle}>{entry.label}</Text>
               <ProgressChart
@@ -285,27 +284,17 @@ const ReportsScreen = ({ navigation }) => {
                 chartConfig={chartConfig}
                 hideLegend
               />
-              <Text style={{ 
-                color: theme.colors.primary, 
-                fontSize: 16,
-                fontWeight: 'bold'
-              }}>
+              <Text style={styles.progressUnits}>
                 {entry.count} units
               </Text>
-              <Text style={{ 
-                color: theme.colors.secondary, 
-                fontSize: 14 
-              }}>
+              <Text style={styles.progressPercent}>
                 {(entry.value * 100).toFixed(1)}%
               </Text>
             </View>
           ))}
         </ScrollView>
 
-        <View style={[
-          styles.barChartCard,
-          { backgroundColor: theme.colors.surface }
-        ]}>
+        <View style={styles.barChartCard}>
           <Text style={styles.chartTitle}>Stock Distribution</Text>
           <StackedBarChart
             data={barChartData}
@@ -321,19 +310,12 @@ const ReportsScreen = ({ navigation }) => {
           <View style={styles.legend}>
             {barChartData.legend.map((label, index) => (
               <View key={index} style={styles.legendItem}>
-                <View style={[styles.legendColor, { backgroundColor: barChartData.barColors[index] }]} />
+                <View style={[styles.legendColor, { backgroundColor: ['#3a6ea8', '#b3c6e6', '#7a8ca3'][index] }]} />
                 <Text style={styles.legendText}>{label}</Text>
               </View>
             ))}
           </View>
         </View>
-
-        {/* <Text style={styles.sectionTitle}>Stock History</Text>
-        <ScrollView style={{ marginBottom: 16 }}>
-          <Text style={{ fontSize: 12, color: '#333' }}>
-            {JSON.stringify(stocksData, null, 2)}
-          </Text>
-        </ScrollView> */}
 
         <Text style={styles.sectionTitle}>Activities</Text>
         <ScrollView style={{ marginBottom: 16 }}>
@@ -343,7 +325,7 @@ const ReportsScreen = ({ navigation }) => {
             </Text>
           ) : (
             activities.map((activity, index) => (
-              <View key={index} style={[styles.activityCard, { backgroundColor: theme.colors.surface }]}>
+              <View key={index} style={styles.activityCard}>
                 <Text style={styles.activityTitle}>{activity.StockStatus}: {activity.ProductName}</Text>
                 <Text style={styles.activityDetails}>Count: {activity.Count}</Text>
                 <Text style={styles.activityDetails}>Location: {activity.Location}</Text>
@@ -371,7 +353,7 @@ const ReportsScreen = ({ navigation }) => {
         ]}
         onStateChange={({ open }) => setFabOpen(open)}
         visible={true}
-        fabStyle={{ backgroundColor: theme.colors.primary }}
+        fabStyle={{ backgroundColor: '#3a6ea8', borderRadius: 22, width: 48, height: 48, alignItems: 'center', justifyContent: 'center', elevation: 0 }}
         style={{
           position: "absolute",
           bottom: 80,
@@ -401,38 +383,90 @@ const styles = StyleSheet.create({
   cardsContainer: {
     paddingBottom: 8
   },
+  segmentedPillWrap: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  segmentedPill: {
+    backgroundColor: '#eaf2fb',
+    borderRadius: 22,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    elevation: 0,
+  },
   progressCard: {
-    borderRadius: 16,
-    padding: 16,
-    marginRight: 12,
-    elevation: 3,
+    borderRadius: 20,
+    padding: 18,
+    marginRight: 14,
+    elevation: 0,
     alignItems: "center",
     width: 160,
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    shadowColor: '#b3c6e6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+  },
+  progressUnits: {
+    color: '#3a6ea8',
+    fontSize: 16,
+    fontWeight: '500',
+    marginTop: 2,
+    marginBottom: 0,
+    textAlign: 'center',
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
+  },
+  progressPercent: {
+    color: '#7a8ca3',
+    fontSize: 14,
+    fontWeight: '400',
+    marginTop: 0,
+    textAlign: 'center',
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
   },
   barChartCard: {
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 20,
+    padding: 18,
     marginTop: 16,
-    elevation: 3,
+    elevation: 0,
+    backgroundColor: '#fff',
+    shadowColor: '#b3c6e6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
   },
   barChart: {
     marginTop: 8,
     borderRadius: 16,
   },
   chartTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
+    fontSize: 15,
+    fontWeight: "500",
+    color: "#3a6ea8",
     marginBottom: 8,
     textAlign: "center",
+    letterSpacing: 0.1,
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginTop: 24,
-    marginBottom: 12,
-    color: "#202124",
+    fontSize: 17,
+    fontWeight: "500",
+    marginTop: 28,
+    marginBottom: 14,
+    color: "#222",
+    backgroundColor: '#eaf2fb',
+    alignSelf: 'center',
+    paddingHorizontal: 22,
+    paddingVertical: 7,
+    borderRadius: 22,
+    overflow: 'hidden',
+    letterSpacing: 0.1,
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
+    shadowColor: '#b3c6e6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
   },
   historyItem: {
     borderRadius: 12,
@@ -464,21 +498,29 @@ const styles = StyleSheet.create({
     color: "#444",
   },
   activityCard: {
-    borderRadius: 12,
-    padding: 16,
-    marginVertical: 8,
-    elevation: 3,
+    borderRadius: 18,
+    padding: 18,
+    marginVertical: 10,
+    elevation: 0,
+    backgroundColor: '#fff',
+    shadowColor: '#b3c6e6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
   },
   activityTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
+    fontSize: 15,
+    fontWeight: "500",
+    color: "#3a6ea8",
     marginBottom: 4,
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
   },
   activityDetails: {
-    fontSize: 14,
-    color: "#555",
+    fontSize: 13,
+    color: "#7a8ca3",
     marginBottom: 2,
+    fontWeight: '400',
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
   },
 });
 

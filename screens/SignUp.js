@@ -1,18 +1,17 @@
 import { useNavigation } from "@react-navigation/native";
 import { Formik } from "formik";
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useRef, useEffect } from "react";
 import { use } from "react";
-import {Image,StyleSheet,useWindowDimensions,View,TouchableOpacity,StatusBar,KeyboardAvoidingView,Platform, Alert} from "react-native";
+import {StyleSheet, useWindowDimensions, View, TouchableOpacity, StatusBar, KeyboardAvoidingView, Platform, Alert, Animated, Easing} from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { Button, Text, useTheme, TextInput } from "react-native-paper";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import apiServices from "../src/services/apiServices";
 import {GlobalContext} from "../src/services/GlobalContext";
 
+// --- FormField: minimal, flat, Apple style ---
 const FormField = ({ name, label, secureTextEntry, formikProps, icon }) => {
     const [showPassword, setShowPassword] = useState(false);
-    const theme = useTheme();
-
     return (
         <View style={styles.fieldContainer}>
             <TextInput
@@ -21,24 +20,27 @@ const FormField = ({ name, label, secureTextEntry, formikProps, icon }) => {
                 onChangeText={formikProps.handleChange(name)}
                 onBlur={formikProps.handleBlur(name)}
                 secureTextEntry={secureTextEntry && !showPassword}
-                mode="outlined"
+                mode="flat"
                 style={styles.textInput}
-                outlineColor={theme.colors.outline}
-                activeOutlineColor={theme.colors.primary}
-                left={<TextInput.Icon icon={icon} />}
-                right={
-                    secureTextEntry ? (
-                        <TextInput.Icon
-                            icon={showPassword ? "eye-off" : "eye"}
-                            onPress={() => setShowPassword(!showPassword)}
-                        />
-                    ) : null
-                }
+                left={icon ? <TextInput.Icon icon={icon} /> : null}
+                right={secureTextEntry ? (
+                    <TextInput.Icon
+                        icon={showPassword ? "eye-off" : "eye"}
+                        onPress={() => setShowPassword(!showPassword)}
+                    />
+                ) : null}
                 theme={{
                     colors: {
-                        background: 'white',
+                        background: '#f9f9f9',
+                        primary: '#007AFF',
+                        text: '#222',
+                        placeholder: '#888',
+                        outline: '#e5e5ea',
                     }
                 }}
+                underlineColor="#e5e5ea"
+                activeUnderlineColor="#007AFF"
+                selectionColor="#007AFF"
             />
             {formikProps.touched[name] && formikProps.errors[name] && (
                 <Text style={styles.errorText}>{formikProps.errors[name]}</Text>
@@ -52,7 +54,27 @@ const SignUpScreen = () => {
     const { width, height } = useWindowDimensions();
     const [isLoading, setIsLoading] = useState(false);
     const navigation = useNavigation();
-    const {setUserId} = useContext(GlobalContext);
+    const { setUserId } = useContext(GlobalContext);
+    const [shake, setShake] = useState(false);
+
+    // Animations (subtle fade/slide)
+    const logoAnim = useRef(new Animated.Value(0)).current;
+    const cardAnim = useRef(new Animated.Value(0)).current;
+    const shakeAnim = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        Animated.timing(logoAnim, {
+            toValue: 1,
+            duration: 700,
+            useNativeDriver: true,
+        }).start();
+        Animated.timing(cardAnim, {
+            toValue: 1,
+            duration: 700,
+            delay: 200,
+            useNativeDriver: true,
+        }).start();
+    }, []);
 
     const initialValues = {
         username: '',
@@ -77,58 +99,107 @@ const SignUpScreen = () => {
         return errors;
     };
 
+    const triggerShake = () => {
+        setShake(true);
+        shakeAnim.setValue(0);
+        Animated.sequence([
+            Animated.timing(shakeAnim, { toValue: 1, duration: 60, useNativeDriver: true }),
+            Animated.timing(shakeAnim, { toValue: -1, duration: 60, useNativeDriver: true }),
+            Animated.timing(shakeAnim, { toValue: 0, duration: 60, useNativeDriver: true }),
+        ]).start(() => setShake(false));
+    };
+
     const handleSignUp = async (values) => {
         setIsLoading(true);
         try {
-            const result = await apiServices.signUp({Username : values.username , Password : values.password});
-            if(result[0].Status === 200)
-            {
+            const result = await apiServices.signUp({ Username: values.username, Password: values.password });
+            if (result[0].Status === 200) {
                 Alert.alert(result[0].Message);
-                console.log(result[0]);
                 setUserId(JSON.parse(result[0].Data).UserId);
                 navigation.navigate('dashboard');
-            }
-            else
-            {
+            } else {
                 Alert.alert(result[0].Message);
+                triggerShake();
             }
-
-            
-
         } catch (error) {
             console.error('Sign Up error:', error);
+            triggerShake();
         } finally {
             setIsLoading(false);
         }
     };
+
+    // Logo subtle fade/slide
+    const logoTranslateY = logoAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: [-24, 0]
+    });
+    const logoOpacity = logoAnim;
+    // Card fade/slide
+    const cardOpacity = cardAnim;
+    const cardTranslateY = cardAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: [24, 0]
+    });
+    // Shake transform
+    const shakeTransform = shakeAnim.interpolate({
+        inputRange: [-1, 0, 1],
+        outputRange: [-6, 0, 6]
+    });
 
     return (
         <KeyboardAvoidingView
             style={styles.container}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-            <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-
-            <Image
-                source={require('../src/assets/background.png')}
-                style={styles.backgroundImage}
-                resizeMode="cover"
+            <StatusBar
+                barStyle={Platform.OS === 'ios' ? 'dark-content' : 'dark-content'}
+                backgroundColor="#f9f9f9"
+                translucent={false}
             />
+            {/* Flat white background */}
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: '#f9f9f9' }]} />
 
             <ScrollView
                 contentContainerStyle={styles.scrollContainer}
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
             >
-                <View style={styles.logoContainer}>
+                <Animated.View
+                    style={[
+                        styles.logoContainer,
+                        {
+                            transform: [
+                                { translateY: logoTranslateY }
+                            ],
+                            opacity: logoOpacity
+                        }
+                    ]}
+                >
                     <View style={styles.logoCircle}>
-                        <Icon name="account-lock" size={50} color="#667eea" />
+                        <Icon
+                            name="star-four-points"
+                            size={40}
+                            color="#007AFF"
+                        />
                     </View>
-                    <Text style={styles.appTitle}>Welcome New User</Text>
-                    <Text style={styles.appSubtitle}>Create your account</Text>
-                </View>
+                    <Text style={styles.appTitle}>Create Account</Text>
+                    <Text style={styles.appSubtitle}>Start your journey with StockFlow</Text>
+                </Animated.View>
 
-                <View style={[styles.formCard, { width: Math.min(width - 40, 400) }]}>
+                <Animated.View
+                    style={[
+                        styles.formCard,
+                        { width: Math.min(width - 40, 400) },
+                        {
+                            opacity: cardOpacity,
+                            transform: [
+                                { translateY: cardTranslateY },
+                                { translateX: shake ? shakeTransform : 0 }
+                            ]
+                        }
+                    ]}
+                >
                     <Formik
                         initialValues={initialValues}
                         validate={validateForm}
@@ -136,26 +207,20 @@ const SignUpScreen = () => {
                     >
                         {(formikProps) => (
                             <View style={styles.formContent}>
-                                <Text style={styles.formTitle}>Sign Up</Text>
-
                                 <FormField
                                     name="username"
-                                    label="Username"
-                                    icon="account"
+                                    
+                                    icon="account-outline"
                                     formikProps={formikProps}
                                 />
 
                                 <FormField
                                     name="password"
-                                    label="Password"
-                                    icon="lock"
+                                    
+                                    icon="lock-outline"
                                     secureTextEntry
                                     formikProps={formikProps}
                                 />
-
-                                {/* <TouchableOpacity style={styles.forgotPassword}>
-                                    <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-                                </TouchableOpacity> */}
 
                                 <Button
                                     mode="contained"
@@ -164,159 +229,136 @@ const SignUpScreen = () => {
                                     disabled={isLoading}
                                     style={styles.loginButton}
                                     labelStyle={styles.loginButtonText}
-                                    buttonColor="#667eea"
+                                    buttonColor="#007AFF"
                                 >
-                                    {isLoading ? 'Signing Up...' : 'Sign Up'}
+                                    {isLoading ? 'Creating Account…' : 'Create Account'}
                                 </Button>
-
-                                <View style={styles.divider}>
-                                    <View style={styles.dividerLine} />
-                                    <Text style={styles.dividerText}>OR</Text>
-                                    <View style={styles.dividerLine} />
-                                </View>
                             </View>
                         )}
                     </Formik>
                     <View style={styles.signupContainer}>
-                        <Text style={styles.signupText}>Have an Account ? </Text>
+                        <Text style={styles.signupText}>Already have an account?</Text>
                         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                            <Text style={styles.signupLink}>Log In</Text>
+                            <Text style={styles.signupLink}>Sign In</Text>
                         </TouchableOpacity>
                     </View>
-                </View>
+                </Animated.View>
             </ScrollView>
         </KeyboardAvoidingView>
     );
 };
 
 const styles = StyleSheet.create({
-     signupContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: '#f9f9f9',
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    padding: 0,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  logoCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#e5e5ea',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  appTitle: {
+    fontSize: 22,
+    fontWeight: Platform.OS === 'ios' ? '600' : 'bold',
+    color: '#222',
+    marginBottom: 2,
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
+    letterSpacing: 0.1,
+  },
+  appSubtitle: {
+    fontSize: 14,
+    color: '#888',
+    marginBottom: 8,
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
+    letterSpacing: 0.1,
+  },
+  formCard: {
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    padding: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
+    alignSelf: 'center',
+    marginBottom: 14,
+  },
+  formContent: {
+    width: '100%',
+  },
+  fieldContainer: {
+    marginBottom: 12,
+  },
+  textInput: {
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+    fontSize: 16,
+    paddingHorizontal: 4,
+    marginBottom: 0,
+    borderWidth: 1,
+    borderColor: '#e5e5ea',
+  },
+  errorText: {
+    color: '#ff3b30',
+    fontSize: 13,
+    marginTop: 2,
+    marginLeft: 4,
+  },
+  loginButton: {
+    borderRadius: 14,
+    paddingVertical: 10,
+    marginBottom: 8,
+    marginTop: 6,
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  loginButtonText: {
+    fontSize: 16,
+    fontWeight: Platform.OS === 'ios' ? '600' : 'bold',
+    color: '#fff',
+    letterSpacing: 0.1,
+  },
+  signupContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 2,
   },
   signupText: {
-    color: '#666',
+    color: '#888',
     fontSize: 14,
+    letterSpacing: 0.1,
   },
   signupLink: {
-    color: '#667eea',
+    color: '#007AFF',
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: Platform.OS === 'ios' ? '600' : 'bold',
+    marginLeft: 2,
+    letterSpacing: 0.1,
   },
-    container: {
-        flex: 1,
-    },
-    backgroundImage: {
-        ...StyleSheet.absoluteFillObject,
-        width: '100%',
-        height: '100%',
-    },
-    scrollContainer: {
-        flexGrow: 1,
-        justifyContent: 'center',
-        padding: 10,
-    },
-    logoContainer: {
-        alignItems: 'center',
-        marginBottom: 40,
-    },
-    logoCircle: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        backgroundColor: 'white',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 20,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        shadowOpacity: 0.3,
-        shadowRadius: 4.65,
-        elevation: 8,
-    },
-    appTitle: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: 'white',
-        marginBottom: 8,
-    },
-    appSubtitle: {
-        fontSize: 16,
-        color: 'rgba(255, 255, 255, 0.8)',
-    },
-    formCard: {
-        backgroundColor: 'white',
-        borderRadius: 20,
-        padding: 30,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 10,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 15,
-        alignSelf: 'center',
-    },
-    formContent: {
-        width: '100%',
-    },
-    formTitle: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#333',
-        textAlign: 'center',
-        marginBottom: 30,
-    },
-    fieldContainer: {
-        marginBottom: 20,
-    },
-    textInput: {
-        backgroundColor: 'white',
-    },
-    errorText: {
-        color: '#d32f2f',
-        fontSize: 12,
-        marginTop: 5,
-        marginLeft: 12,
-    },
-    forgotPassword: {
-        alignSelf: 'flex-end',
-        marginBottom: 30,
-    },
-    forgotPasswordText: {
-        color: '#667eea',
-        fontSize: 14,
-        fontWeight: '500',
-    },
-    loginButton: {
-        borderRadius: 25,
-        paddingVertical: 8,
-        marginBottom: 30,
-    },
-    loginButtonText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    divider: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 30,
-    },
-    dividerLine: {
-        flex: 1,
-        height: 1,
-        backgroundColor: '#e0e0e0',
-    },
-    dividerText: {
-        marginHorizontal: 15,
-        color: '#888',
-        fontSize: 14,
-    },
 });
 
 export default SignUpScreen;

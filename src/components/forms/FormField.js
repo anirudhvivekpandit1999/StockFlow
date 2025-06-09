@@ -33,10 +33,24 @@ const FormField = ({ name, label, x , ...props }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 12,
+    marginBottom: 18,
+    backgroundColor: '#fafdff',
+    borderRadius: 18,
+    padding: 6,
+    shadowColor: '#b3c6e6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 0,
   },
   input: {
-    backgroundColor: 'white',
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    fontSize: 15,
+    color: '#222',
+    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
+    borderWidth: 1,
+    borderColor: '#e3eaf3',
   },
 });
 
