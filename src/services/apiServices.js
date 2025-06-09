@@ -1,5 +1,5 @@
 import { decryptData } from "./encryptionDecryptionService";
-import { addNewFormEndpoint, clientsAndSuppliersController, dashboardController, getAllClientsAndSuppliersDataEndpoint, getAnalysisEndpoint, getInventoryDetailsEndpoint, getInventoryListEndpoint, getProductNameEndpoint, getSearchedListEndpoint, getSideBarDataEndpoint, getStockFlowDataEndpoint, getWarehouseNamesEndpoint, inventoryManagementController, loginEndpoint, reportsAndLogsController, searchBarAndFilterFunctionalityController, signUpEndpoint, stockInAndOutInboundOutboundMovementController, testReportDataEndpoint, url, userAuthenticationAndRoleManagementController, warehouseLocationsController } from "./globals";
+import { addNewFormEndpoint, clientsAndSuppliersController, dashboardController, getAllClientsAndSuppliersDataEndpoint, getAnalysisEndpoint, getInventoryDetailsEndpoint, getInventoryListEndpoint, getProductNameEndpoint, getSearchedListEndpoint, getSideBarDataEndpoint, getStockFlowDataEndpoint, getWarehouseNamesEndpoint, inventoryManagementController, loginEndpoint, orderManagementController, reportsAndLogsController, searchBarAndFilterFunctionalityController, sendOrderRequestEndpoint, signUpEndpoint, stockInAndOutInboundOutboundMovementController, testReportDataEndpoint, url, userAuthenticationAndRoleManagementController, warehouseLocationsController } from "./globals";
 import { callStoredProcedure } from "./procedureService";
 
 async function addNewForm(values) {
@@ -76,6 +76,11 @@ async function getAllClientsAndSuppliersData(values) {
   return result[0];
 }
 
+async function sendOrderRequest(values) {
+  const result = await callStoredProcedure(`${url}${orderManagementController}${sendOrderRequestEndpoint}`,values)
+  return result
+}
+
 
 
 const apiServices = {
@@ -91,7 +96,8 @@ const apiServices = {
   getSearchedList,
   getWarehouseNames,
   testReportData,
-  getAllClientsAndSuppliersData
+  getAllClientsAndSuppliersData,
+  sendOrderRequest
 };
 
 export default apiServices;

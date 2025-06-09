@@ -19,6 +19,8 @@ import  QRScanner  from './screens/QRScanner';
 import reportsScreen from './screens/reports';
 import ClientAndSupplierManagementScreen from './screens/ClientAndSupplierManagementScreen';
 import ClientAndSupplierDetails from './screens/ClientAndSupplierDetails';
+import PurchaseOrderForm from './src/components/forms/PurchaseOrderForm';
+import SalesOrderForm from './src/components/forms/SalesOrderForm';
 
 
 
@@ -97,6 +99,15 @@ export default function App() {
               component={ClientAndSupplierDetails}
               options={{ headerShown: false }}
               />
+              <Stack.Screen
+              name="PurchaseOrderForm"
+              component={PurchaseOrderForm}
+              options={{ headerShown: false }}
+              />
+              <Stack.Screen
+              name = 'SalesOrderForm'
+              component={SalesOrderForm}
+              options={{ headerShown: false }}/>
           </Stack.Navigator>
         </NavigationContainer>
       </GestureHandlerRootView>

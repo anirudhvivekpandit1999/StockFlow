@@ -60,7 +60,7 @@ const BottomNavigation = ({ onOpen }) => {
     },
     {
       key: 3,
-      icon: 'arrow-up-bold',
+      icon: 'clipboard',
       onPress: () => navigation.navigate('DispatchedOrders'),
     }
   ];
