@@ -1,4 +1,4 @@
-export const url = 'http://192.168.10.31:789/api/';
+export const url = 'http://192.168.10.30:789/api/';
 export const stockInAndOutInboundOutboundMovementController = 'StockInAndOutInboundOutboundMovement/';
 export const addNewFormEndpoint = 'AddNewForm';
 export const getStockFlowDataEndpoint = 'GetStockFlowData';

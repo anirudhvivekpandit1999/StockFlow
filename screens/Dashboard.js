@@ -221,22 +221,24 @@ const Dashboard = () => {
             style={[styles.card, styles.glassCard]}>
 
             <StackedBarChart
-              data={stackedBarDataFromBarData}
-              width={width - 20}
-              height={220}
-              chartConfig={{
-                backgroundGradientFrom: theme.colors.tertiary,
-                backgroundGradientTo: theme.colors.primary,
-                color: () => '#fff',
-                labelColor: () => '#fff',
-                decimalPlaces: 0,
-              }}
-              style={{
-                borderRadius: 16
-              }}
-              fromZero
-              showValuesOnTopOfBars
-            />
+  data={stackedBarDataFromBarData}
+  width={width - 20}
+  height={220}
+  chartConfig={{
+    backgroundGradientFrom: theme.colors.tertiary,
+    backgroundGradientTo: theme.colors.primary,
+    color: () => '#fff',
+    labelColor: () => '#fff',
+    decimalPlaces: 0,
+  }}
+  style={{
+    borderRadius: 16
+  }}
+  fromZero
+  yAxisInterval={1}
+  formatYLabel={y => parseInt(y, 10).toString()} // <-- Add this line
+  showValuesOnTopOfBars
+/>
           </View>
           <View
             style={[styles.card, styles.glassCard]}>

@@ -50,7 +50,8 @@ const NewInboundForm = ({ onDismiss }) => {
               ProductName: values.productName,
               Count: values.count,
               Name: values.Supplier,
-              Location: values.location,
+              Location: JSON.parse({"ShellNumber" : values.location1 , "RackNumber" :values.location2 , "PrototypeNumber" :values.location3 , "Subwarehouse" : values.location4})
+              ,
               StockStatus: "Recieved",
               UserId: userId,
               WarehouseId : warehouseId
@@ -114,7 +115,11 @@ const NewInboundForm = ({ onDismiss }) => {
               <FormField name="productName" label="Product Name" x="0" />
               <FormField name="count" label="Count" x="1" />
               <FormField name="Supplier" label="Supplier" />
-              <FormField name="location" label="Location" />
+              <FormField name="location1" label="Shell Number" />
+              <FormField name="location2" label="Rack Number" />
+              <FormField name="location3" label="Prototype Number" />
+              <FormField name="location4" label="Subwarehouse" />
+
 
               <View style={styles.buttonContainer}>
                 <Button mode="outlined" onPress={onDismiss} style={styles.button}>

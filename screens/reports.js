@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+
 import {
   StyleSheet,
   useWindowDimensions,
@@ -9,8 +10,9 @@ import {
   Platform,
   PermissionsAndroid,
   Alert,
-  ActivityIndicator
+  ActivityIndicator,NativeModules
 } from "react-native";
+
 import AppBar from "../src/components/layout/AppBar";
 import BottomNavigation from "../src/components/layout/BottomNavigation";
 import { SegmentedButtons, useTheme, FAB } from "react-native-paper";
@@ -19,6 +21,8 @@ import RNHTMLtoPDF from "react-native-html-to-pdf";
 import Share from "react-native-share";
 import RNFS from "react-native-fs";
 import apiServices from "../src/services/apiServices";
+// import { USBPrinter } from 'react-native-thermal-receipt-printer-image-qr';
+import { Linking } from 'react-native';
 
 const ReportsScreen = ({ navigation }) => {
   const [value, setValue] = useState("Daily");
@@ -28,6 +32,54 @@ const ReportsScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [stocksData, setStocksData] = useState([]);
   const theme = useTheme();
+  const { MyCustomModule } = NativeModules;
+
+
+  // No connection logic needed for Sunmi built-in printer
+
+  // Print report using Android Print Intent (for generic POS devices)
+  const printReport = async () => {
+    if (Platform.OS !== 'android') {
+      Alert.alert('POS Printing', 'Printing is only supported on Android POS devices.');
+      return;
+    }
+    try {
+      // Prepare summary
+      const periodData = reportsData.find(r => r.Period === value) || {};
+      let summary = `Stock Report (${value})\n`;
+      summary += `-----------------------------\n`;
+      summary += `Received:     ${periodData.Recieved || 0}\n`;
+      summary += `Dispatched:   ${periodData.Dispatched || 0}\n`;
+      summary += `Transferred:  ${periodData.Transferred || 0}\n`;
+      summary += `Total:        ${periodData.Total || 0}\n`;
+      summary += `-----------------------------\n`;
+
+      // Prepare activities
+      let activityText = '';
+      const acts = activities.slice(0, 10); // Print up to 10 activities for brevity
+      if (acts.length > 0) {
+        activityText += 'Activities:\n';
+        acts.forEach((a, idx) => {
+          activityText += `${idx + 1}. ${a.StockStatus}: ${a.ProductName}\n   Count: ${a.Count}  Loc: ${a.Location}\n   Date: ${new Date(a.DatedOn).toLocaleDateString()}\n`;
+        });
+      } else {
+        activityText += 'No activities for this period.\n';
+      }
+
+      // Compose the report text
+      const reportText = `StockFlow\n${summary}\n${activityText}\n\n`;
+
+      // Call the native module to print
+      if (MyCustomModule && MyCustomModule.printText) {
+        MyCustomModule.printText('text');
+        Alert.alert('POS Printing', 'Report sent to POS printer.');
+      } else {
+        Alert.alert('POS Printing Error', 'Native printer module not available.');
+      }
+    } catch (err) {
+      Alert.alert('POS Printing Error', err?.message || 'Failed to print.');
+    }
+  };
 
   useEffect(() => {
     const fetchReportsData = async () => {
@@ -40,15 +92,13 @@ const ReportsScreen = ({ navigation }) => {
         
         if (reportData?.length > 0) {
           setReportsData(JSON.parse(reportData[0].SummaryData) || []);
-          console.log("here is the report data", JSON.parse(JSON.parse(reportData[0].ActivityData).map(item => item.MonthlyActivities)));
-         setStocksData(JSON.parse(reportData[0].ActivityData) || []);
+          setStocksData(JSON.parse(reportData[0].ActivityData) || []);
         }
       } catch (error) {
         console.error("Error fetching reports data:", error);
         Alert.alert("Error", "Failed to load reports data");
       } finally {
         setLoading(false);
-        console.log("Stocks data loaded successfully", stocksData);
       }
     };
 
@@ -349,6 +399,13 @@ const ReportsScreen = ({ navigation }) => {
             icon: "file-excel",
             label: "Export as Excel",
             onPress: exportToExcel,
+          },
+          {
+            icon: "printer",
+            label: "Print Report",
+            onPress: printReport,
+            color: Platform.OS === 'android' ? '#3a6ea8' : '#ccc',
+            style: { opacity: Platform.OS === 'android' ? 1 : 0.5 },
           },
         ]}
         onStateChange={({ open }) => setFabOpen(open)}

@@ -4,13 +4,28 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+ <uses-permission android:name= "com.pos.permission.SECURITY"/>
+            <uses-permission android:name= "com.pos.permission.ACCESSORY_DATETIME"/>
+           <uses-permission android:name=  "com.pos.permission.ACCESSORY_LED"/>
+            <uses-permission android:name= "com.pos.permission.ACCESSORY_BEEP"/>
+           <uses-permission android:name=  "com.pos.permission.ACCESSORY_RFREGISTER"/>
+           <uses-permission android:name=  "com.pos.permission.CARD_READER_ICC"/>
+           <uses-permission android:name=  "com.pos.permission.CARD_READER_PICC"/>
+            <uses-permission android:name= "com.pos.permission.CARD_READER_MAG"/>
+           <uses-permission android:name=  "com.pos.permission.COMMUNICATION"/>
+           <uses-permission android:name=  "com.pos.permission.PRINTER"/>
+           <uses-permission android:name=  "com.pos.permission.ACCESSORY_RFREGISTER"/>
+           <uses-permission android:name=  "com.pos.permission.EMVCORE"/>
+
+
     <application
       android:name=".MainApplication"
       android:label="@string/app_name"
       android:icon="@mipmap/ic_launcher"
       android:roundIcon="@mipmap/ic_launcher_round"
       android:allowBackup="false"
-      android:theme="@style/AppTheme">
+      android:theme="@style/AppTheme"
+      android:usesCleartextTraffic="true">
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
