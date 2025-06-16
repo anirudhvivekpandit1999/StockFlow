@@ -54,7 +54,7 @@ const LoginScreen = () => {
     const { width, height } = useWindowDimensions();
     const [isLoading, setIsLoading] = useState(false);
     const navigation = useNavigation();
-    const { setUserId } = useContext(GlobalContext);
+    const { setUserId ,setRoleId } = useContext(GlobalContext);
     const [shake, setShake] = useState(false);
 
     // Animations (subtle fade/slide)
@@ -117,6 +117,7 @@ const LoginScreen = () => {
             if (result[0].Status === 200) {
                 Alert.alert(result[0].Message);
                 setUserId(JSON.parse(result[0].Data).UserId);
+                setRoleId(JSON.parse(result[0].Data).RoleId);
                 navigation.navigate('dashboard');
             } else {
                 Alert.alert(result[0].Message);

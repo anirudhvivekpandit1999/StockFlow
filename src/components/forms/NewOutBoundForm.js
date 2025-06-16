@@ -39,8 +39,8 @@ const NewOutboundForm = ({ onDismiss }) => {
             ProductSerialNumber: values.serialNumber,
             ProductName: values.productName,
             Count: values.count,
-            Name: values.client,
-            Location: values.location,
+            Name: values.billto,
+            Location: values.shipto,
             StockStatus: 'Dispatched',
             UserId : userId , 
             WarehouseId : warehouseId
@@ -104,12 +104,12 @@ const NewOutboundForm = ({ onDismiss }) => {
                 x="1"
               />
               <FormField
-                name="client"
-                label="Client"
+                name="billto"
+                label="Bill To"
               />
               <FormField
-                name="location"
-                label="Location"
+                name="shipto"
+                label="Ship To"
               />
               <View style={styles.buttonContainer}>
                 <Button

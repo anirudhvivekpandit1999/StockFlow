@@ -16,7 +16,7 @@ const BottomNavigation = ({ onOpen }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedWarehouse, setSelectedWarehouse] = useState('Warehouse 1');
   const [warehouseData , setWarehouseData] = useState([]);
-  const { setWarehouseId } = useContext(GlobalContext);
+  const { setWarehouseId ,roleId} = useContext(GlobalContext);
   useEffect(()=>{
     fetchWarehouse();
     const unsubscribe = navigation.addListener('focus', () => {
@@ -28,7 +28,7 @@ const BottomNavigation = ({ onOpen }) => {
 
   async function fetchWarehouse(){
     try {
-        const response = await apiServices.getWarehouseNames();
+        const response = await apiServices.getWarehouseNames({RoleId : roleId});
         if (response.Status === 200) {
           console.log('Warehouse names fetched successfully:', JSON.parse(response.Data).map(item => item.WarehouseLocation));
             setWarehouseData(JSON.parse(response.Data));
@@ -103,7 +103,7 @@ const BottomNavigation = ({ onOpen }) => {
           onPressOut={() => setModalVisible(false)}
         >
           <ScrollView style={styles.modalContent}>
-            {warehouseData.map((w, i) => (
+            {roleId === 1?warehouseData.map((w, i) => (
               <TouchableOpacity
                 key={w.WarehouseId}
                 style={styles.option}
@@ -111,7 +111,7 @@ const BottomNavigation = ({ onOpen }) => {
               >
                 <Text style={styles.optionText}>{w.WarehouseLocation}</Text>
               </TouchableOpacity>
-            ))}
+            )) : <Text>You dont have the ability to change warehouses</Text>}
           </ScrollView>
         </TouchableOpacity>
       </Modal>

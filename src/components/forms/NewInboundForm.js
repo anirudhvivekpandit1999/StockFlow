@@ -50,7 +50,12 @@ const NewInboundForm = ({ onDismiss }) => {
               ProductName: values.productName,
               Count: values.count,
               Name: values.Supplier,
-              Location: JSON.parse({"ShellNumber" : values.location1 , "RackNumber" :values.location2 , "PrototypeNumber" :values.location3 , "Subwarehouse" : values.location4})
+              Location: JSON.stringify({
+  ShellNumber: values.location1,
+  RackNumber: values.location2,
+  PrototypeNumber: values.location3,
+  Subwarehouse: values.location4
+})
               ,
               StockStatus: "Recieved",
               UserId: userId,

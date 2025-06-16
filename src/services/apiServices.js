@@ -62,8 +62,8 @@ async function getSearchedList(values) {
   return result[0];
 }
 
-async function getWarehouseNames() {
-  const result = await callStoredProcedure(`${url}${warehouseLocationsController}${getWarehouseNamesEndpoint}`, {});
+async function getWarehouseNames(values) {
+  const result = await callStoredProcedure(`${url}${warehouseLocationsController}${getWarehouseNamesEndpoint}`, values);
   return result[0];
 }
 async function testReportData(values) {

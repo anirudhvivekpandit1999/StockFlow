@@ -4,8 +4,9 @@ const GlobalContextProvider = ({ children }) => {
   const [userId, setUserId] = useState(0);
   const [showSidebar , setShowSidebar] = useState(false);
   const [warehouseId , setWarehouseId] = useState(1);
+  const [roleId , setRoleId] = useState(0);
   return (
-    <GlobalContext.Provider value={{ userId, setUserId , showSidebar ,setShowSidebar, warehouseId, setWarehouseId }}>
+    <GlobalContext.Provider value={{ userId, setUserId , showSidebar ,setShowSidebar, warehouseId, setWarehouseId ,roleId ,setRoleId}}>
       {children}
     </GlobalContext.Provider>
   );

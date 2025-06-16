@@ -15,12 +15,13 @@ import {
 
 import AppBar from "../src/components/layout/AppBar";
 import BottomNavigation from "../src/components/layout/BottomNavigation";
-import { SegmentedButtons, useTheme, FAB } from "react-native-paper";
+import { SegmentedButtons, useTheme, FAB, Dialog, Portal, Button } from "react-native-paper";
 import { ProgressChart, BarChart, StackedBarChart } from "react-native-chart-kit";
 import RNHTMLtoPDF from "react-native-html-to-pdf";
 import Share from "react-native-share";
 import RNFS from "react-native-fs";
 import apiServices from "../src/services/apiServices";
+import { BluetoothTscPrinter } from 'react-native-thermal-receipt-printer-image-qr';
 // import { USBPrinter } from 'react-native-thermal-receipt-printer-image-qr';
 import { Linking } from 'react-native';
 
@@ -32,54 +33,71 @@ const ReportsScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [stocksData, setStocksData] = useState([]);
   const theme = useTheme();
-  const { MyCustomModule } = NativeModules;
+  const {PrintModule} = NativeModules;
 
 
   // No connection logic needed for Sunmi built-in printer
 
   // Print report using Android Print Intent (for generic POS devices)
   const printReport = async () => {
-    if (Platform.OS !== 'android') {
-      Alert.alert('POS Printing', 'Printing is only supported on Android POS devices.');
-      return;
+  if (Platform.OS !== 'android') {
+    Alert.alert('POS Printing', 'Printing is only supported on Android POS devices.');
+    return;
+  }
+  try {
+    // Prepare summary
+    const periodData = reportsData.find(r => r.Period === value) || {};
+    let summary = `Stock Report (${value})\n`;
+    summary += `-----------------------------\n`;
+    summary += `Received:     ${periodData.Recieved || 0}\n`;
+    summary += `Dispatched:   ${periodData.Dispatched || 0}\n`;
+    summary += `Transferred:  ${periodData.Transferred || 0}\n`;
+    summary += `Total:        ${periodData.Total || 0}\n`;
+    summary += `-----------------------------\n`;
+//     await BluetoothTscPrinter.connect('66:32:7B:86:8D');
+// await BluetoothTscPrinter.printText(reportText + '\n\n', {
+//     encoding: 'GBK',
+//     codepage: 0,
+//     widthtimes: 0,
+//     heighttimes: 0,
+//     fonttype: 1
+// });    // Prepare activities
+    let activityText = '';
+    const acts = activities.slice(0, 10); // Print up to 10 activities for brevity
+    if (acts.length > 0) {
+      activityText += 'Activities:\n';
+      acts.forEach((a, idx) => {
+        activityText += `${idx + 1}. ${a.StockStatus}: ${a.ProductName}\n   Count: ${a.Count}  Loc: ${a.Location}\n   Date: ${new Date(a.DatedOn).toLocaleDateString()}\n`;
+      });
+    } else {
+      activityText += 'No activities for this period.\n';
     }
-    try {
-      // Prepare summary
-      const periodData = reportsData.find(r => r.Period === value) || {};
-      let summary = `Stock Report (${value})\n`;
-      summary += `-----------------------------\n`;
-      summary += `Received:     ${periodData.Recieved || 0}\n`;
-      summary += `Dispatched:   ${periodData.Dispatched || 0}\n`;
-      summary += `Transferred:  ${periodData.Transferred || 0}\n`;
-      summary += `Total:        ${periodData.Total || 0}\n`;
-      summary += `-----------------------------\n`;
 
-      // Prepare activities
-      let activityText = '';
-      const acts = activities.slice(0, 10); // Print up to 10 activities for brevity
-      if (acts.length > 0) {
-        activityText += 'Activities:\n';
-        acts.forEach((a, idx) => {
-          activityText += `${idx + 1}. ${a.StockStatus}: ${a.ProductName}\n   Count: ${a.Count}  Loc: ${a.Location}\n   Date: ${new Date(a.DatedOn).toLocaleDateString()}\n`;
-        });
-      } else {
-        activityText += 'No activities for this period.\n';
-      }
+    // Compose the report text
+    const reportText = `StockFlow\n${summary}\n${activityText}\n\n`;
 
-      // Compose the report text
-      const reportText = `StockFlow\n${summary}\n${activityText}\n\n`;
+    // Call the native module to print
+    if (PrintModule) {
+      PrintModule.printText(reportText);
+      Alert.alert('POS Printing', 'Report sent to POS printer.');
+      await BluetoothTscPrinter.connect('66:32:7B:27:86:8D');
 
-      // Call the native module to print
-      if (MyCustomModule && MyCustomModule.printText) {
-        MyCustomModule.printText('text');
-        Alert.alert('POS Printing', 'Report sent to POS printer.');
-      } else {
-        Alert.alert('POS Printing Error', 'Native printer module not available.');
-      }
-    } catch (err) {
-      Alert.alert('POS Printing Error', err?.message || 'Failed to print.');
+// Then use printText method (not calling BluetoothTscPrinter directly)
+await BluetoothTscPrinter.printText(reportText + '\n\n', {
+    encoding: 'GBK',
+    codepage: 0,
+    widthtimes: 0,
+    heighttimes: 0,  // Fixed the typo from 'heigthtimes'
+    fonttype: 1
+});
+      
+    } else {
+      Alert.alert('POS Printing Error', 'Native printer module not available.');
     }
-  };
+  } catch (err) {
+    Alert.alert('POS Printing Error', err?.message || 'Failed to print.');
+  }
+};
 
   useEffect(() => {
     const fetchReportsData = async () => {
@@ -193,19 +211,45 @@ const ReportsScreen = ({ navigation }) => {
     }
     return true;
   };
-
   const exportToExcel = async () => {
     const hasPermission = await requestWritePermission();
     if (!hasPermission) return;
 
     try {
-      const csv =
-        "Date,Action,Amount\n" +
-        stockHistory[value]
-          .map((item) => `${item.date},${item.action},${item.amount}`)
-          .join("\n");
+      const periodData = reportsData.find(r => r.Period === value) || {};
+      
+      // Create a formatted CSV with sections
+      let csvContent = [];
+      
+      // Add header with styling
+      csvContent.push('StockFlow - ' + value + ' Report');
+      csvContent.push('Generated on: ' + new Date().toLocaleDateString());
+      csvContent.push('');
+      
+      // Add summary section
+      csvContent.push('Stock Summary');
+      csvContent.push('Category,Count');
+      csvContent.push(`Received,${periodData.Recieved || 0}`);
+      csvContent.push(`Dispatched,${periodData.Dispatched || 0}`);
+      csvContent.push(`Transferred,${periodData.Transferred || 0}`);
+      csvContent.push(`Total,${periodData.Total || 0}`);
+      csvContent.push('');
+      
+      // Add activities section
+      csvContent.push('Recent Activities');
+      csvContent.push('Status,Product Name,Count,Location,Date');
+      
+      // Add activity data
+      activities.slice(0, 10).forEach(activity => {
+        csvContent.push(
+          `${activity.StockStatus},${activity.ProductName},${activity.Count},${activity.Location},${new Date(activity.DatedOn).toLocaleDateString()}`
+        );
+      });
 
-      const fileName = `${value}_stock_report.csv`;
+      // Join all lines with proper line endings
+      const csv = csvContent.join('\r\n');
+
+      const fileName = `StockFlow_${value.toLowerCase()}_report_${new Date().toISOString().split('T')[0]}.csv`;
       const downloadsPath =
         Platform.OS === "android"
           ? RNFS.DownloadDirectoryPath
@@ -214,35 +258,144 @@ const ReportsScreen = ({ navigation }) => {
       const path = `${downloadsPath}/${fileName}`;
 
       await RNFS.writeFile(path, csv, "utf8");
-      await Share.open({ url: `file://${path}`, type: "text/csv" });
+      await Share.open({ 
+        url: `file://${path}`, 
+        type: "text/csv",
+        subject: `StockFlow ${value} Report`,
+        message: `StockFlow ${value} Report generated on ${new Date().toLocaleDateString()}`
+      });
     } catch (error) {
       console.error("Excel export failed:", error.message);
       Alert.alert("Export Failed", "Could not save Excel file.");
     }
   };
-
   const generatePDF = async () => {
     const hasPermission = await requestWritePermission();
     if (!hasPermission) return;
 
     try {
-      const history = stockHistory[value]
-        .map((item) => `<li>${item.date} - ${item.action} (${item.amount})</li>`)
-        .join("");
-
+      const periodData = reportsData.find(r => r.Period === value) || {};
+      const acts = activities.slice(0, 10);
+      
       const html = `
         <html>
           <head>
             <style>
-              body { font-family: Arial; padding: 20px; }
-              h1 { color: #333; }
-              ul { list-style-type: none; padding: 0; }
-              li { margin-bottom: 10px; }
+              body {
+                font-family: 'Helvetica', Arial, sans-serif;
+                padding: 40px;
+                color: #333;
+                line-height: 1.6;
+              }
+              .header {
+                text-align: center;
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 2px solid #3a6ea8;
+              }
+              .logo {
+                color: #3a6ea8;
+                font-size: 28px;
+                font-weight: bold;
+                margin-bottom: 10px;
+              }
+              .report-date {
+                color: #666;
+                font-size: 14px;
+              }
+              .summary-card {
+                background: #f8f9fa;
+                border-radius: 10px;
+                padding: 20px;
+                margin: 20px 0;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+              }
+              .summary-title {
+                color: #3a6ea8;
+                font-size: 20px;
+                margin-bottom: 15px;
+              }
+              .summary-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+              }
+              .summary-item {
+                padding: 10px;
+                background: white;
+                border-radius: 8px;
+              }
+              .summary-label {
+                color: #666;
+                font-size: 14px;
+              }
+              .summary-value {
+                color: #3a6ea8;
+                font-size: 24px;
+                font-weight: bold;
+              }
+              .activities {
+                margin-top: 30px;
+              }
+              .activity-card {
+                background: white;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 10px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+              }
+              .activity-title {
+                color: #3a6ea8;
+                font-size: 16px;
+                font-weight: bold;
+                margin-bottom: 5px;
+              }
+              .activity-details {
+                color: #666;
+                font-size: 14px;
+              }
             </style>
           </head>
           <body>
-            <h1>${value} Stock Report</h1>
-            <ul>${history}</ul>
+            <div class="header">
+              <div class="logo">StockFlow</div>
+              <div class="report-date">${value} Report - ${new Date().toLocaleDateString()}</div>
+            </div>
+
+            <div class="summary-card">
+              <div class="summary-title">Stock Summary</div>
+              <div class="summary-grid">
+                <div class="summary-item">
+                  <div class="summary-label">Received</div>
+                  <div class="summary-value">${periodData.Recieved || 0}</div>
+                </div>
+                <div class="summary-item">
+                  <div class="summary-label">Dispatched</div>
+                  <div class="summary-value">${periodData.Dispatched || 0}</div>
+                </div>
+                <div class="summary-item">
+                  <div class="summary-label">Transferred</div>
+                  <div class="summary-value">${periodData.Transferred || 0}</div>
+                </div>
+                <div class="summary-item">
+                  <div class="summary-label">Total</div>
+                  <div class="summary-value">${periodData.Total || 0}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="activities">
+              <div class="summary-title">Recent Activities</div>
+              ${acts.length > 0 ? acts.map((activity, index) => `
+                <div class="activity-card">
+                  <div class="activity-title">${activity.StockStatus}: ${activity.ProductName}</div>
+                  <div class="activity-details">
+                    Count: ${activity.Count} • Location: ${activity.Location}<br>
+                    Date: ${new Date(activity.DatedOn).toLocaleDateString()}
+                  </div>
+                </div>
+              `).join('') : '<div class="activity-card">No activities found for this period</div>'}
+            </div>
           </body>
         </html>
       `;
@@ -346,7 +499,7 @@ const ReportsScreen = ({ navigation }) => {
 
         <View style={styles.barChartCard}>
           <Text style={styles.chartTitle}>Stock Distribution</Text>
-          <StackedBarChart
+          {/* <StackedBarChart
             data={barChartData}
             width={width - 32}
             height={220}
@@ -356,7 +509,7 @@ const ReportsScreen = ({ navigation }) => {
             withHorizontalLabels
             segments={4}
             hideLegend
-          />
+          /> */}
           <View style={styles.legend}>
             {barChartData.legend.map((label, index) => (
               <View key={index} style={styles.legendItem}>
