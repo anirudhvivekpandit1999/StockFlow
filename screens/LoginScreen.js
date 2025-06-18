@@ -118,7 +118,7 @@ const LoginScreen = () => {
                 Alert.alert(result[0].Message);
                 setUserId(JSON.parse(result[0].Data).UserId);
                 setRoleId(JSON.parse(result[0].Data).RoleId);
-                navigation.navigate('dashboard');
+                navigation.navigate('Home');
             } else {
                 Alert.alert(result[0].Message);
                 triggerShake();

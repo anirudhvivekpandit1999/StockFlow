@@ -21,6 +21,7 @@ import ClientAndSupplierManagementScreen from './screens/ClientAndSupplierManage
 import ClientAndSupplierDetails from './screens/ClientAndSupplierDetails';
 import PurchaseOrderForm from './src/components/forms/PurchaseOrderForm';
 import SalesOrderForm from './src/components/forms/SalesOrderForm';
+import NewInboundForm from './src/components/forms/NewInboundForm';
 
 
 
@@ -108,6 +109,10 @@ export default function App() {
               name = 'SalesOrderForm'
               component={SalesOrderForm}
               options={{ headerShown: false }}/>
+              <Stack.Screen 
+                name='InboundModel'
+                component={NewInboundForm}
+                options={{headerShown : false}}/>
           </Stack.Navigator>
         </NavigationContainer>
       </GestureHandlerRootView>

@@ -131,7 +131,7 @@ export const HomeScreen = () => {
   const handleDrawerOpen = () => console.log('Drawer opened!');
 
   // Modal handlers
-  const openInboundModal = () => setInboundModal(true);
+  const openInboundModal = () => navigation.navigate('InboundModel');
   const closeInboundModal = () => setInboundModal(false);
   const openOutboundModal = () => setOutboundModal(true);
   const closeOutboundModal = () => setOutboundModal(false);
@@ -367,7 +367,15 @@ export const HomeScreen = () => {
       <BottomNavigation onOpen={handleDrawerOpen} />
       
       {/* Modals */}
-      {inboundModal && <NewInboundForm onDismiss={closeInboundModal} />}
+      {inboundModal && (
+        <NewInboundForm 
+          visible={inboundModal} 
+          onDismiss={() => {
+            closeInboundModal();
+            fetchStockFlowData(); // Refresh data after form submission
+          }} 
+        />
+      )}
       {outboundModal && <NewOutboundForm onDismiss={closeOutboundModal} />}
       {transferModal && <NewTransferForm onDismiss={closeTransferModal} />}
     </View>
