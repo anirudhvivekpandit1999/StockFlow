@@ -1,170 +1,130 @@
-import React, { useState, useEffect, useContext } from "react";
-import { Modal, Button, Text, useTheme } from "react-native-paper";
-import { View, StyleSheet, useWindowDimensions, Alert } from "react-native";
-import { Formik, useFormikContext } from "formik";
-import { ScrollView } from "react-native-gesture-handler";
+import React, { useState } from "react";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Platform,
+  Alert,
+  TouchableOpacity
+} from "react-native";
+import { TextInput, Button, Text, useTheme, IconButton } from "react-native-paper";
+import { Formik } from "formik";
 import { Picker } from "@react-native-picker/picker";
 
-import FormField from "./FormField";
-import FormFieldNav from "./FormFieldNav";
-import apiServices from "../../services/apiServices";
-import { GlobalContext } from "../../services/GlobalContext";
-
 const initialValues = {
-  serialNumber: "",
-  productName: "",
-  count: "",
-  department: "",
-  location: ""
+  payOrder: "Internal Transfer",
+  internalTransferNumber: "",
+  user: "",
+  serialNumbers: [""],
+  remark: ""
 };
 
-const DepartmentList = ["Sales", "Marketing"];
+const usersList = ["Amit Sharma", "Sneha Rao", "Nikhil Mehta", "Priya Menon"];
 
-const AutoFillProductName = () => {
-  const { values, setFieldValue } = useFormikContext();
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchProductName = async () => {
-      const trimmed = values.serialNumber.trim();
-      if (!trimmed) {
-        setFieldValue("productName", "");
-        return;
-      }
-
-      try {
-        const response = await apiServices.getProductName({
-          ProductSerialNumber: trimmed,
-          WarehouseId: 1
-        });
-
-        if (isMounted) {
-          if (response && response.length > 0) {
-            const parsed = JSON.parse(response[0].Data);
-            setFieldValue("productName", parsed.ProductName);
-          } else {
-            setFieldValue("productName", "");
-          }
-        }
-      } catch (error) {
-        console.error("Failed to fetch product name", error);
-        if (isMounted) setFieldValue("productName", "");
-      }
-    };
-
-    fetchProductName();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [values.serialNumber, setFieldValue]);
-
-  return null;
-};
-
-const NewTransferForm = ({ onDismiss }) => {
-  const { width } = useWindowDimensions();
+const InternalTransferScreen = ({ navigation }) => {
   const theme = useTheme();
-  const {userId , warehouseId} = useContext(GlobalContext);
+  const [formValues, setFormValues] = useState(initialValues);
+
+  const addSerialField = (values, setFieldValue) => {
+    const newList = [...values.serialNumbers, ""];
+    setFieldValue("serialNumbers", newList);
+    setFormValues(prev => ({ ...prev, serialNumbers: newList }));
+  };
+
+  const updateSerial = (index, text, values, setFieldValue) => {
+    const updated = [...values.serialNumbers];
+    updated[index] = text;
+    setFieldValue("serialNumbers", updated);
+    setFormValues(prev => ({ ...prev, serialNumbers: updated }));
+  };
 
   return (
-    <Modal
-      visible={true}
-      onDismiss={onDismiss}
-      dismissable={true}
-      contentContainerStyle={[
-        styles.modalContent,
-        { width: Math.min(width - 32, 400), zIndex: 9999 }
-      ]}
-      style={{ zIndex: 9999, elevation: 99 }}
-    >
+    <ScrollView contentContainerStyle={styles.container}>
       <Formik
-        initialValues={initialValues}
-        onSubmit={async values => {
-          try {
-            const result = await apiServices.addNewForm({
-              ProductSerialNumber: values.serialNumber,
-              ProductName: values.productName,
-              Count: values.count,
-              Name: values.department,
-              Location: values.location,
-              StockStatus: "Transferred",
-              UserId : userId,
-              WarehouseId : warehouseId
-            });
-
-            Alert.alert(result[0].Message);
-            onDismiss();
-          } catch (error) {
-            console.error("Form submission error:", error);
-            Alert.alert("Error", "Failed to submit form.");
-          }
+        initialValues={formValues}
+        enableReinitialize
+        onSubmit={values => {
+          Alert.alert("Submitted", JSON.stringify(values, null, 2));
+          navigation.goBack();
         }}
       >
         {({ handleSubmit, values, setFieldValue }) => (
-          <ScrollView
-            style={styles.formContainer}
-            showsVerticalScrollIndicator={false}
-          >
-            <AutoFillProductName />
+          <>
+            <Text style={styles.header}>Internal Transfer</Text>
 
-            <Text
-              style={{
-                color: theme.colors.primary,
-                fontWeight: "bold",
-                textAlign: "center",
-                fontSize: 20
-              }}
-            >
-              Transfer Form
-            </Text>
-
-            <FormField
-              name="serialNumber"
-              label="Product Serial Number"
-              x="0"
+            {/* Pay Order (autofilled) */}
+            <TextInput
+              label="Pay Order"
+              value="Internal Transfer"
+              mode="outlined"
+              disabled
+              style={styles.input}
             />
 
-            <FormField
-              name="productName"
-              label="Product Name"
-              
-              x="0"
+            {/* Internal Transfer Number */}
+            <TextInput
+              label="Child Of (Internal Transfer Number)"
+              value={values.internalTransferNumber}
+              onChangeText={text =>
+                setFieldValue("internalTransferNumber", text)
+              }
+              mode="outlined"
+              style={styles.input}
             />
 
-            <FormField name="count" label="Count" x="1" />
-
-            <Text style={{ marginTop: 12, marginBottom: 4 }}>
-              Department
-            </Text>
-            <View
-              style={{
-                borderWidth: 1,
-                borderColor: "#ccc",
-                borderRadius: 6,
-                marginBottom: 12
-              }}
-            >
+            {/* User Picker */}
+            <Text style={styles.label}>Select User</Text>
+            <View style={styles.pickerWrapper}>
               <Picker
-                selectedValue={values.department}
-                onValueChange={itemValue =>
-                  setFieldValue("department", itemValue)
-                }
+                selectedValue={values.user}
+                onValueChange={itemValue => setFieldValue("user", itemValue)}
               >
-                <Picker.Item label="Select Department" value="" />
-                {DepartmentList.map(dept => (
-                  <Picker.Item key={dept} label={dept} value={dept} />
+                <Picker.Item label="Select User" value="" />
+                {usersList.map(user => (
+                  <Picker.Item key={user} label={user} value={user} />
                 ))}
               </Picker>
             </View>
 
-            <FormField name="location" label="Location" />
+            {/* Serial Number Inputs with + button */}
+            <Text style={styles.label}>Serial Numbers</Text>
+            {values.serialNumbers.map((serial, index) => (
+              <View key={index} style={styles.serialRow}>
+                <TextInput
+                  label={`Serial Number ${index + 1}`}
+                  value={serial}
+                  onChangeText={text =>
+                    updateSerial(index, text, values, setFieldValue)
+                  }
+                  mode="outlined"
+                  style={[styles.input, { flex: 1 }]}
+                />
+                {index === values.serialNumbers.length - 1 && (
+                  <IconButton
+                    icon="plus"
+                    onPress={() => addSerialField(values, setFieldValue)}
+                    style={{ marginLeft: 8, alignSelf: "center" }}
+                  />
+                )}
+              </View>
+            ))}
 
-            <View style={styles.buttonContainer}>
+            {/* Remark */}
+            <TextInput
+              label="Remark"
+              value={values.remark}
+              onChangeText={text => setFieldValue("remark", text)}
+              mode="outlined"
+              style={styles.input}
+              multiline
+              numberOfLines={3}
+            />
+
+            {/* Action Buttons */}
+            <View style={styles.buttonRow}>
               <Button
                 mode="outlined"
-                onPress={onDismiss}
+                onPress={() => navigation.goBack()}
                 style={styles.button}
               >
                 Cancel
@@ -177,44 +137,54 @@ const NewTransferForm = ({ onDismiss }) => {
                 Submit
               </Button>
             </View>
-          </ScrollView>
+          </>
         )}
       </Formik>
-    </Modal>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  modalContent: {
-    backgroundColor: "#fafdff",
-    padding: 26,
-    borderRadius: 22,
-    margin: 16,
-    elevation: 0,
-    zIndex: 9999,
-    maxHeight: "80%",
-    shadowColor: '#b3c6e6',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
+  container: {
+    padding: 20,
+    backgroundColor: "#f9f9ff"
+  },
+  header: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#4169e1",
+    textAlign: "center",
+    marginBottom: 20
+  },
+  input: {
+    marginBottom: 16
+  },
+  pickerWrapper: {
     borderWidth: 1,
-    borderColor: '#e3eaf3',
+    borderColor: "#ccc",
+    borderRadius: 6,
+    marginBottom: 16
   },
-  formContainer: {
-    gap: 16,
+  label: {
+    fontWeight: "600",
+    marginBottom: 6,
+    marginTop: 8
   },
-  buttonContainer: {
+  serialRow: {
     flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 14,
-    marginTop: 28,
+    alignItems: "center",
+    marginBottom: 12
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 24
   },
   button: {
-    minWidth: 90,
-    borderRadius: 16,
-    fontWeight: '500',
-    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
-  },
+    flex: 1,
+    marginHorizontal: 8,
+    borderRadius: 10
+  }
 });
 
-export default NewTransferForm;
+export default InternalTransferScreen;

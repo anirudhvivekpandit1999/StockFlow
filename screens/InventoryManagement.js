@@ -1,28 +1,38 @@
+// Inventory Management Screen - METAS UI
+
 import React, { useContext, useEffect, useState, useRef } from "react";
-import { Alert, StyleSheet, useWindowDimensions, View, Animated, Easing, Dimensions } from "react-native";
+import {
+  Alert,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+  Animated,
+  Easing,
+  Dimensions,
+  Platform,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 import { FlatList, ScrollView, Text } from "react-native-gesture-handler";
 import AppBar from "../src/components/layout/AppBar";
 import { GlobalContext } from "../src/services/GlobalContext";
 import BottomNavigation from "../src/components/layout/BottomNavigation";
 import SideBar from "../src/components/common/SideBar";
 import { Divider, FAB, useTheme } from "react-native-paper";
-import { Image } from "react-native";
-import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import apiServices from "../src/services/apiServices";
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+
+const { width: screenWidth } = Dimensions.get("window");
+
 const InventoryManagement = () => {
-  const { showSidebar, setShowSidebar } = useContext(GlobalContext);
-  const { width } = useWindowDimensions();
+  const { showSidebar, setShowSidebar, warehouseId } = useContext(GlobalContext);
   const [inventoryListData, setInventoryListData] = useState([]);
   const navigation = useNavigation();
   const theme = useTheme();
-  const { warehouseId } = useContext(GlobalContext);
+  const { width } = useWindowDimensions();
 
-  // Animations
   const bgAnim = useRef(new Animated.Value(0)).current;
-  const floatAnim = useRef(new Animated.Value(0)).current;
   const cardAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -31,14 +41,6 @@ const InventoryManagement = () => {
       duration: 1200,
       useNativeDriver: false,
     }).start();
-    Animated.loop(
-      Animated.timing(floatAnim, {
-        toValue: 1,
-        duration: 6000,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      })
-    ).start();
     Animated.timing(cardAnim, {
       toValue: 1,
       duration: 900,
@@ -52,65 +54,42 @@ const InventoryManagement = () => {
     fetchInventoryList();
   }, []);
 
-  async function fetchInventoryList() {
+  const fetchInventoryList = async () => {
     try {
-      var result = await apiServices.getInventoryList({ WarehouseId: warehouseId });
+      const result = await apiServices.getInventoryList({ WarehouseId: warehouseId });
       if (result.Status === 200) {
         setInventoryListData(JSON.parse(result.Data));
       }
     } catch (error) {
       console.error("Error fetching inventory list:", error);
     }
-  }
-  function toggleSideBar() {
-    setShowSidebar(true);
-  }
-  function closeSidebar() {
-    setShowSidebar(false);
-  }
-  const handleDrawerOpen = () => {
-    // ...existing code...
   };
 
-  // Animated background colors
-  const bgColor = bgAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['#fff', '#f8fafd'],
-  });
-  // Remove bgOverlay and floating shapes for minimal Apple look
-  const cardOpacity = cardAnim;
-  const cardTranslateY = cardAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [24, 0],
-  });
+  const toggleSideBar = () => setShowSidebar(true);
+  const closeSidebar = () => setShowSidebar(false);
+  const handleDrawerOpen = () => {};
+
+  const bgColor = bgAnim.interpolate({ inputRange: [0, 1], outputRange: ["#fff", "#f9f9f9"] });
+  const cardTranslateY = cardAnim.interpolate({ inputRange: [0, 1], outputRange: [24, 0] });
 
   return (
     <View style={styles.container}>
-      {/* Minimal white background */}
-      <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: bgColor, zIndex: -2 }]} />
-      <AppBar
-        title={
-          "Stock Flow"
-        }
-        onMenuPress={toggleSideBar}
-      />
+      <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: bgColor }]} />
+      <AppBar title="Inventory" onMenuPress={toggleSideBar} />
+
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Animated.View style={{ opacity: cardOpacity, transform: [{ translateY: cardTranslateY }] }}>
+        <Animated.View style={{ opacity: cardAnim, transform: [{ translateY: cardTranslateY }] }}>
           <FlatList
-            data={inventoryListData || []}
+            data={inventoryListData}
             keyExtractor={item => item.ProductSerialNumber}
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.card}
-                onPress={() => navigation.navigate('ProductDetails', { name: item.ProductName })}
-                activeOpacity={0.93}
+                onPress={() => navigation.navigate("ProductDetails", { name: item.ProductName })}
+                activeOpacity={0.9}
               >
                 <View style={styles.cardHeaderRow}>
-                  <Image
-                    source={require('../src/assets/Media.png')}
-                    style={styles.cardIcon}
-                    resizeMode="contain"
-                  />
+                  <Image source={require("../src/assets/Media.png")} style={styles.cardIcon} resizeMode="cover" />
                   <Text style={styles.cardTitle}>{item.ProductName}</Text>
                 </View>
                 <Text style={styles.cardLocation}>Location: {item.Location}</Text>
@@ -125,132 +104,81 @@ const InventoryManagement = () => {
           />
         </Animated.View>
       </ScrollView>
+
       <FAB
-        icon={({ size }) => (
-          <Icon name="qrcode-scan" size={size} color="#fff" />
-        )}
+        icon={({ size }) => <Icon name="qrcode-scan" size={size} color="#fff" />}
         style={styles.fab}
         color="#fff"
-        onPress={() => navigation.navigate('QRScanner')}
+        onPress={() => navigation.navigate("QRScanner")}
       />
+
       <BottomNavigation onOpen={handleDrawerOpen} />
       {showSidebar && <SideBar onClose={closeSidebar} />}
     </View>
   );
-}
-
+};
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  headerTitleWrap: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 16,
-    marginBottom: 10,
-  },
-  headerTitlePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'center',
-    paddingHorizontal: 22,
-    paddingVertical: 7,
-    borderRadius: 24,
-    backgroundColor: '#f6f7f9',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 2,
-    elevation: 1,
-    minWidth: 120,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: Platform.OS === 'ios' ? '600' : 'bold',
-    color: '#222',
-    letterSpacing: 0.1,
-    textAlign: 'center',
-    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
-  },
-  content: {
-    padding: 16,
-    paddingBottom: 32,
-  },
+  container: { flex: 1, backgroundColor: "#fff" },
+  content: { padding: 20, paddingBottom: 40 },
   fab: {
-    padding: 0,
-    margin: 0,
-    position: 'absolute',
+    position: "absolute",
     right: 20,
     bottom: 80,
-    backgroundColor: '#1976d2',
+    backgroundColor: "#1976d2",
     elevation: 3,
+    borderRadius: 32,
     zIndex: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    borderWidth: 1,
-    borderColor: '#e3ecff',
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
+    backgroundColor: "#fff",
+    borderRadius: 20,
     padding: 16,
-    margin: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 2,
-    elevation: 1,
-    borderWidth: 1,
-    borderColor: '#ececec',
-    marginBottom: 18,
+    marginBottom: 16,
+    borderWidth: 1.5,
+    borderColor: "#e3ecff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
-  cardHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
+  cardHeaderRow: { flexDirection: "row", alignItems: "center", marginBottom: 6 },
   cardIcon: {
-    width: 36,
-    height: 36,
-    marginRight: 10,
+    width: 42,
+    height: 42,
+    marginRight: 12,
     borderRadius: 12,
-    backgroundColor: '#f6f7f9',
+    backgroundColor: "#f0f4ff",
     borderWidth: 1,
-    borderColor: '#ececec',
+    borderColor: "#d6e2ff",
   },
   cardTitle: {
     fontSize: 17,
-    fontWeight: '500',
-    color: '#222',
-    letterSpacing: 0.08,
-    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
+    fontWeight: "600",
+    color: "#222",
+    letterSpacing: 0.2,
   },
   cardLocation: {
-    fontWeight: '400',
-    fontStyle: 'italic',
-    color: '#888',
-    marginBottom: 4,
-    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
+    fontSize: 13,
+    fontStyle: "italic",
+    color: "#6e6e6e",
+    marginBottom: 6,
   },
   cardDivider: {
-    backgroundColor: '#e3ecff',
+    backgroundColor: "#e3ecff",
     marginVertical: 6,
     height: 1,
   },
   cardDetailsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 4,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 6,
   },
   cardDetail: {
-    fontWeight: '400',
-    fontStyle: 'italic',
-    color: '#1976d2',
-    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
+    fontSize: 14,
+    fontStyle: "italic",
+    color: "#1976d2",
   },
 });
 

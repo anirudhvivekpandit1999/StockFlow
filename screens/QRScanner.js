@@ -1,35 +1,25 @@
 // QRScanner.js
 import { useNavigation } from '@react-navigation/native';
-import React, { useState, useRef, useEffect } from 'react';
-import { View, StyleSheet, Text, Alert } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, StyleSheet, Text, Alert, Platform } from 'react-native';
 import { Camera, CameraType } from 'react-native-camera-kit';
 
 const ACCENT = '#3a6ea8';
-const SOFT_BG = 'rgba(255,255,255,0.85)';
+const SOFT_BG = 'rgba(255,255,255,0.9)';
 const SOFT_GRAY = '#7a8ca3';
 
 const QRScanner = () => {
   const [scanned, setScanned] = useState(false);
   const [scannedData, setScannedData] = useState('');
   const cameraRef = useRef(null);
-  const navigation = useNavigation();     
-  // useEffect(() => {
-  //   const codeValue = 'Laptop';
-  //   setScannedData(codeValue);
-  //   setScanned(true);
-  //     navigation.navigate('ProductDetails', { name: codeValue });
-    
-  //   Alert.alert('QR Code Scanned', codeValue);
-  // }, [scanned]);
+  const navigation = useNavigation();
 
   const onReadCode = (event) => {
-    
-    const codeValue = 'Laptop';
+    const codeValue = 'Laptop'; // Replace this logic for actual QR data if needed
     setScannedData(codeValue);
     setScanned(true);
-      navigation.navigate('ProductDetails', { name: codeValue });
-    
     Alert.alert('QR Code Scanned', codeValue);
+    navigation.navigate('ProductDetails', { name: codeValue });
   };
 
   const resetScanner = () => {
@@ -54,15 +44,12 @@ const QRScanner = () => {
       />
 
       <View style={styles.overlayTop}>
-        <View >
-          <Text style={styles.title}>Scan </Text>
-        </View>
-        <Text style={styles.subtitle}>
-          Align the QR code within the blue frame
-        </Text>
+        <Text style={styles.title}>Scan</Text>
+        <Text style={styles.subtitle}>Align the QR code within the frame</Text>
+
         {scannedData ? (
           <View style={styles.resultContainer}>
-            <Text style={styles.resultText}>Scanned Data:</Text>
+            <Text style={styles.resultText}>Scanned:</Text>
             <Text style={styles.resultValue}>{scannedData}</Text>
             <Text style={styles.resetText} onPress={resetScanner}>
               Tap to scan again
@@ -75,82 +62,63 @@ const QRScanner = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
-  camera: {
-    flex: 1,
-  },
+  container: { flex: 1, backgroundColor: '#000' },
+  camera: { flex: 1 },
   overlayTop: {
     position: 'absolute',
     top: 60,
     width: '100%',
     alignItems: 'center',
-    zIndex: 10,
     paddingHorizontal: 20,
-  },
-  headerPill: {
-    // backgroundColor: SOFT_BG,
-    // borderRadius: 22,
-    // paddingHorizontal: 28,
-    // paddingVertical: 8,
-    // marginBottom: 12,
-    // shadowColor: '#b3c6e6',
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.08,
-    // shadowRadius: 8,
-    // elevation: 2,
+    zIndex: 10,
   },
   title: {
     color: ACCENT,
-    fontSize: 22,
-    fontWeight: '500',
-    textAlign: 'center',
-    letterSpacing: 0.1,
+    fontSize: 24,
+    fontWeight: '600',
+    letterSpacing: 0.3,
+    marginBottom: 4,
     fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
   },
   subtitle: {
     color: SOFT_GRAY,
     fontSize: 15,
-    marginBottom: 8,
-    textAlign: 'center',
     fontWeight: '400',
+    textAlign: 'center',
     fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
   },
   resultContainer: {
     backgroundColor: SOFT_BG,
-    padding: 22,
-    borderRadius: 18,
-    marginTop: 22,
+    borderRadius: 20,
+    padding: 20,
+    marginTop: 30,
     alignItems: 'center',
     shadowColor: '#b3c6e6',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
+    elevation: 2,
   },
   resultText: {
     color: ACCENT,
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '500',
-    marginBottom: 5,
+    marginBottom: 6,
     fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
   },
   resultValue: {
     color: '#222',
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: 10,
+    fontSize: 15,
     fontWeight: '400',
+    textAlign: 'center',
     fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
+    marginBottom: 10,
   },
   resetText: {
     color: ACCENT,
     fontSize: 14,
     textDecorationLine: 'underline',
     fontWeight: '400',
-    marginTop: 2,
     fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
   },
 });

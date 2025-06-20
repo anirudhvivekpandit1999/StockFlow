@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, TouchableOpacity } from "react-native";
 import { Text } from "react-native-paper";
 import AppBar from "../src/components/layout/AppBar";
 import { useNavigation } from "@react-navigation/native";
 import SideBar from "../src/components/common/SideBar";
 import { ScrollView } from "react-native-gesture-handler";
 import BottomNavigation from "../src/components/layout/BottomNavigation";
-import { TouchableOpacity } from "react-native";
 import apiServices from "../src/services/apiServices";
 import { GlobalContext } from "../src/services/GlobalContext";
 
@@ -14,10 +13,9 @@ const ClientAndSupplierManagementScreen = () => {
   const [sideBar, showSidebar] = useState(false);
   const [clientsAndSuppliers, setClientsAndSuppliers] = useState([]);
   const navigation = useNavigation();
-  const {warehouseId} = useContext(GlobalContext);
+  const { warehouseId } = useContext(GlobalContext);
 
   useEffect(() => {
-    // Replace API call with dummy data
     const dummyData = [
       { Name: "Client A", Contact: "123-456-7890", Location: "New York" },
       { Name: "Supplier B", Contact: "987-654-3210", Location: "Los Angeles" },
@@ -27,47 +25,42 @@ const ClientAndSupplierManagementScreen = () => {
     setClientsAndSuppliers(dummyData);
     fetchClientsAndSuppliersList();
   }, []);
-  async function fetchClientsAndSuppliersList(){
+
+  async function fetchClientsAndSuppliersList() {
     try {
-      const result = await apiServices.getAllClientsAndSuppliersData({WarehouseId : warehouseId})
+      const result = await apiServices.getAllClientsAndSuppliersData({ WarehouseId: warehouseId });
       console.log("Clients and Suppliers Data:", result.Data);
+      // setClientsAndSuppliers(result.Data); // Uncomment to use actual data
     } catch (error) {
       console.error("Error fetching clients and suppliers data:", error);
     }
   }
-  function toggleSideBar() {
-    showSidebar(true);
-  }
 
-  function closeSidebar() {
-    showSidebar(false);
-  }
-
-  const handleDrawerOpen = () => {
-    console.log("Drawer opened!");
-  };
+  const toggleSideBar = () => showSidebar(true);
+  const closeSidebar = () => showSidebar(false);
+  const handleDrawerOpen = () => console.log("Drawer opened!");
 
   return (
     <View style={styles.container}>
-      <AppBar
-        title="Stock Flow"
-        onMenuPress={() => toggleSideBar()}
-        onBackPress={() => navigation.goBack()}
-      />
+      <AppBar title="Client & Supplier Management" onMenuPress={toggleSideBar} onBackPress={() => navigation.goBack()} />
       {sideBar && <SideBar onClose={closeSidebar} />}
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <Text style={styles.heading}>🧾 Select a Profile</Text>
+        <Text style={styles.subheading}>Tap on a client or supplier to view more details</Text>
+
         {clientsAndSuppliers.map((item, index) => (
           <TouchableOpacity
             key={index}
-            onPress={() => navigation.navigate('ClientAndSupplierDetails', { details: item })}
+            onPress={() => navigation.navigate("ClientAndSupplierDetails", { details: item })}
             style={styles.card}
           >
             <Text style={styles.title}>{item.Name}</Text>
-            {/* <Text style={styles.details}>Contact: {item.Contact}</Text> */}
             <Text style={styles.details}>Location: {item.Location}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
+
       <BottomNavigation onOpen={handleDrawerOpen} />
     </View>
   );
@@ -76,39 +69,45 @@ const ClientAndSupplierManagementScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f7fafd",
+    backgroundColor: "#f8f9fa",
   },
-  content: {
-    padding: 18,
-    paddingBottom: 64,
+  scrollContent: {
+    padding: 16,
+    paddingBottom: 80,
+    gap: 12,
+  },
+  heading: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#2c3e50",
+    marginBottom: 4,
+  },
+  subheading: {
+    fontSize: 14,
+    color: "#6c757d",
+    marginBottom: 16,
   },
   card: {
-    borderRadius: 18,
-    padding: 20,
-    marginVertical: 12,
-    elevation: 0,
-    backgroundColor: "#fff",
-    shadowColor: '#b3c6e6',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
+    backgroundColor: "#ffffff",
+    borderRadius: 14,
+    padding: 18,
     borderWidth: 1,
-    borderColor: '#e3eaf3',
+    borderColor: "#e3eaf3",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   title: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: "500",
     color: "#3a6ea8",
-    marginBottom: 4,
-    letterSpacing: 0.1,
-    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
+    marginBottom: 6,
   },
   details: {
-    fontSize: 14,
-    color: "#7a8ca3",
-    marginBottom: 2,
-    fontWeight: '400',
-    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
+    fontSize: 13,
+    color: "#6c757d",
   },
 });
 

@@ -9,18 +9,15 @@ import {
   Platform,
   Alert,
 } from "react-native";
-import BottomNavigation from "../layout/BottomNavigation";
-import { Icon, Text } from "react-native-paper";
 import { ScrollView } from "react-native-gesture-handler";
-import SideBar from "../common/SideBar";
+import { Icon, Text } from "react-native-paper";
 import AppBar from "../layout/AppBar";
-import { useWindowDimensions } from "react-native";
+import BottomNavigation from "../layout/BottomNavigation";
+import SideBar from "../common/SideBar";
 import apiServices from "../../services/apiServices";
 
 const SalesOrderForm = ({ navigation }) => {
   const [sideBar, showSidebar] = useState(false);
-  const { width, height } = useWindowDimensions();
-
   const [customerName, setCustomerName] = useState("");
   const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState("");
@@ -41,13 +38,17 @@ const SalesOrderForm = ({ navigation }) => {
 
   const handleSubmitOrder = () => {
     console.log("Sales order submitted:", { customerName, items });
-    // Add backend submission logic here
-    items.map(async(item)=>{
-        var result = await apiServices.sendOrderRequest({Flag : 2 , ProductName : item , Count : 1 , Name : customerName})
-    })
-    Alert.alert('Successfully generated Sales Request , Please check with your Administrator')
-    setItems([])
-    setCustomerName('')
+    items.map(async (item) => {
+      await apiServices.sendOrderRequest({
+        Flag: 2,
+        ProductName: item,
+        Count: 1,
+        Name: customerName,
+      });
+    });
+    Alert.alert("Success", "Sales Request sent. Please check with your administrator.");
+    setItems([]);
+    setCustomerName("");
   };
 
   return (
@@ -75,6 +76,7 @@ const SalesOrderForm = ({ navigation }) => {
               style={styles.input}
               value={customerName}
               onChangeText={setCustomerName}
+              placeholderTextColor="#a0aab8"
             />
           </View>
 
@@ -87,6 +89,7 @@ const SalesOrderForm = ({ navigation }) => {
                 style={[styles.input, { flex: 1, marginRight: 8 }]}
                 value={newItem}
                 onChangeText={setNewItem}
+                placeholderTextColor="#a0aab8"
               />
               <TouchableOpacity style={styles.addButton} onPress={handleAddItem}>
                 <Icon source="plus" size={20} color="#fff" />
@@ -117,43 +120,42 @@ const SalesOrderForm = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f7fafd",
+    backgroundColor: "#f4f6f8",
   },
   content: {
     padding: 18,
-    alignItems: "center",
+    paddingBottom: 100,
   },
   card: {
-    width: "100%",
     backgroundColor: "#fff",
     borderRadius: 22,
-    padding: 24,
-    marginVertical: 16,
-    elevation: 0,
-    shadowColor: '#b3c6e6',
+    padding: 22,
+    marginBottom: 18,
+    shadowColor: "#b3c6e6",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 1,
     borderWidth: 1,
-    borderColor: '#e3eaf3',
+    borderColor: "#e3eaf3",
   },
   cardTitle: {
     fontSize: 17,
-    fontWeight: "500", 
-    marginBottom: 12,
+    fontWeight: "600",
     color: "#3a6ea8",
-    letterSpacing: 0.1,
-    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
+    marginBottom: 12,
+    fontFamily: Platform.OS === "ios" ? "San Francisco" : undefined,
   },
   input: {
     backgroundColor: "#fafdff",
-    padding: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
     borderRadius: 14,
-    fontSize: 16,
+    fontSize: 15,
     color: "#222",
     borderWidth: 1,
-    borderColor: '#e3eaf3',
-    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
+    borderColor: "#e3eaf3",
+    fontFamily: Platform.OS === "ios" ? "San Francisco" : undefined,
   },
   row: {
     flexDirection: "row",
@@ -163,39 +165,36 @@ const styles = StyleSheet.create({
     backgroundColor: "#3a6ea8",
     padding: 12,
     borderRadius: 16,
-    marginLeft: 2,
-    shadowColor: '#b3c6e6',
+    shadowColor: "#b3c6e6",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 0,
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 1,
   },
   listItem: {
-    fontSize: 16,
-    color: "#7a8ca3",
-    paddingVertical: 4,
-    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
+    fontSize: 15,
+    color: "#5a6b83",
+    paddingVertical: 6,
+    fontFamily: Platform.OS === "ios" ? "San Francisco" : undefined,
   },
   submitButton: {
     backgroundColor: "#3a6ea8",
     paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 22,
-    marginTop: 28,
-    width: "100%",
+    borderRadius: 24,
     alignItems: "center",
-    shadowColor: '#b3c6e6',
+    marginTop: 32,
+    shadowColor: "#b3c6e6",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 0,
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 1,
   },
   submitText: {
     color: "#fff",
     fontSize: 16,
-    fontWeight: "500",
-    letterSpacing: 0.1,
-    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
+    fontWeight: "600",
+    letterSpacing: 0.2,
+    fontFamily: Platform.OS === "ios" ? "San Francisco" : undefined,
   },
 });
 

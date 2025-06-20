@@ -3,7 +3,7 @@ import { GestureHandlerRootView, NativeViewGestureHandler, ScrollView } from 're
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import {HomeScreen} from './screens/HomeScreen';  
+import HomeScreen from './screens/HomeScreen';  
 import ReceivedOrders from './screens/RecievedOrders';
 import DispatchedOrders from './screens/DispatchedOrders';
 import AllActivity from './screens/AllActivity';
@@ -22,6 +22,11 @@ import ClientAndSupplierDetails from './screens/ClientAndSupplierDetails';
 import PurchaseOrderForm from './src/components/forms/PurchaseOrderForm';
 import SalesOrderForm from './src/components/forms/SalesOrderForm';
 import NewInboundForm from './src/components/forms/NewInboundForm';
+import NewDispatchScreen from './src/components/forms/NewOutBoundForm';
+import InternalTransferScreen from './src/components/forms/NewTransferForm';
+import ReturnFormScreen from './src/components/forms/ReturnsForm';
+import StockAnalyticsPage from './screens/StocksAnalyticPage';
+import InventoryPage from './screens/InventoryPage';
 
 
 
@@ -112,6 +117,26 @@ export default function App() {
               <Stack.Screen 
                 name='InboundModel'
                 component={NewInboundForm}
+                options={{headerShown : false}}/>
+                <Stack.Screen 
+                name='OutboundModel'
+                component={NewDispatchScreen}
+                options={{headerShown : false}}/>
+                <Stack.Screen 
+                name='TransferModel'
+                component={InternalTransferScreen}
+                options={{headerShown : false}}/>
+                <Stack.Screen 
+                name='ReturnsModel'
+                component={ReturnFormScreen}
+                options={{headerShown : false}}/>
+                <Stack.Screen 
+                name='StockAnalyticsPage'
+                component={StockAnalyticsPage}
+                options={{headerShown : false}}/>
+                <Stack.Screen 
+                name='InventoryPage'
+                component={InventoryPage}
                 options={{headerShown : false}}/>
           </Stack.Navigator>
         </NavigationContainer>

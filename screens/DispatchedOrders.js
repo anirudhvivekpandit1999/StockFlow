@@ -1,12 +1,19 @@
+// DispatchedOrders screen using METAS design principles
+
 import React, { useState } from "react";
-import { StyleSheet, useWindowDimensions, View } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
+import {
+  StyleSheet,
+  useWindowDimensions,
+  View,
+  TouchableOpacity,
+  Platform,
+} from "react-native";
+import { ScrollView, Text } from "react-native-gesture-handler";
+import { Icon } from "react-native-paper";
 import AppBar from "../src/components/layout/AppBar";
 import SideBar from "../src/components/common/SideBar";
 import BottomNavigation from "../src/components/layout/BottomNavigation";
-import { Icon, Text } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
-import { TouchableOpacity } from "react-native";
 
 const DispatchedOrders = () => {
   const [sideBar, showSidebar] = useState(false);
@@ -16,14 +23,12 @@ const DispatchedOrders = () => {
   const toggleSideBar = () => showSidebar(true);
   const onClose = () => showSidebar(false);
 
-  const handleDrawerOpen = () => {
-    console.log("Drawer opened!");
-  };
+  const handleDrawerOpen = () => console.log("Drawer opened!");
 
   return (
     <View style={styles.container}>
       <AppBar
-        title="Stock Flow"
+        title={<Text style={styles.title}>Stock Flow</Text>}
         onMenuPress={toggleSideBar}
         onBackPress={() => navigation.goBack()}
       />
@@ -34,16 +39,22 @@ const DispatchedOrders = () => {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <TouchableOpacity style={[styles.card, { width: width - 48, height: height /3 -10}]} onPress={()=>navigation.navigate('PurchaseOrderForm')}>
+        <TouchableOpacity
+          style={[styles.card, { width: width - 48, height: height / 3 - 20 }]}
+          onPress={() => navigation.navigate("PurchaseOrderForm")}
+        >
           <View style={styles.cardInner}>
-            <Icon source="arrow-down" color="#28a745" size={28} />
+            <Icon source="arrow-down" color="#2e7d32" size={32} />
             <Text style={styles.cardTitle}>Received Orders</Text>
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.card, { width: width - 48, height: height /3 -10 }]} onPress={()=>navigation.navigate('SalesOrderForm')}>
+        <TouchableOpacity
+          style={[styles.card, { width: width - 48, height: height / 3 - 20 }]}
+          onPress={() => navigation.navigate("SalesOrderForm")}
+        >
           <View style={styles.cardInner}>
-            <Icon source="arrow-up" color="#dc3545" size={28} />
+            <Icon source="arrow-up" color="#c62828" size={32} />
             <Text style={styles.cardTitle}>Dispatched Orders</Text>
           </View>
         </TouchableOpacity>
@@ -59,35 +70,41 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f7fafd",
   },
+  title: {
+    fontSize: 20,
+    fontWeight: Platform.OS === "ios" ? "600" : "bold",
+    color: "white",
+    letterSpacing: 0.3,
+  },
   content: {
-    padding: 18,
+    padding: 20,
     alignItems: "center",
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffff",
     borderRadius: 22,
     padding: 24,
     marginVertical: 16,
-    elevation: 0,
-    shadowColor: '#b3c6e6',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
+    elevation: 3,
+    shadowColor: "#1565c0",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
     justifyContent: "center",
-    borderWidth: 1,
-    borderColor: '#e3eaf3',
+    borderWidth: 1.5,
+    borderColor: "#e3ecff",
   },
   cardInner: {
     flexDirection: "row",
     alignItems: "center",
   },
   cardTitle: {
-    fontSize: 17,
-    fontWeight: "500",
+    fontSize: 18,
+    fontWeight: "600",
     marginLeft: 14,
-    color: "#3a6ea8",
-    letterSpacing: 0.1,
-    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
+    color: "#1565c0",
+    letterSpacing: 0.2,
+    fontFamily: Platform.OS === "ios" ? "San Francisco" : undefined,
   },
 });
 

@@ -1,303 +1,209 @@
+// Product Details Screen - METAS Design
+
 import React, { useEffect, useState, useCallback, useContext } from "react";
-import { StyleSheet, View, Dimensions, useWindowDimensions, BackHandler } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Dimensions,
+  useWindowDimensions,
+  BackHandler,
+  Platform,
+} from "react-native";
 import { ScrollView, Text } from "react-native-gesture-handler";
 import AppBar from "../src/components/layout/AppBar";
 import BottomNavigation from "../src/components/layout/BottomNavigation";
 import { useRoute, useNavigation, useFocusEffect } from "@react-navigation/native";
-import Svg, { Defs, G, LinearGradient, Path, Stop } from "react-native-svg";
 import { useTheme } from "react-native-paper";
 import apiServices from "../src/services/apiServices";
-import { date, DateSchema } from "yup";
 import { GlobalContext } from "../src/services/GlobalContext";
 
 const ProductDetails = () => {
-    const [showSidebar, setShowSidebar] = useState(false);
-    const [productdetails, setproductdetails] = useState({
-    });
-    const route = useRoute();
-    const navigation = useNavigation();
-    const { name } = route.params || {};
-    const theme = useTheme();
-    const { height } = useWindowDimensions();
-    const { width } = Dimensions.get("window");
-    const { warehouseId } = useContext(GlobalContext);
-    useFocusEffect(
-        useCallback(() => {
-            const onBackPress = () => {
-                navigation.navigate('Inventory');
-                return true; 
-            };
+  const [productdetails, setproductdetails] = useState({});
+  const route = useRoute();
+  const navigation = useNavigation();
+  const { name } = route.params || {};
+  const { height, width } = useWindowDimensions();
+  const { warehouseId } = useContext(GlobalContext);
 
-            const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        navigation.navigate("Inventory");
+        return true;
+      };
+      const subscription = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+      return () => subscription.remove();
+    }, [navigation])
+  );
 
-            return () => subscription.remove();
-        }, [navigation])
-    );
+  useEffect(() => {
+    fetchProductDetails();
+  }, [name]);
 
-    useEffect(() => {
-        fetchProductDetails();
-    }, [name]);
-
-    async function fetchProductDetails() {
-        try {
-            let result = await apiServices.getInventoryDetails({ ProductName: name , WarehouseId : warehouseId });
-            console.log("Product Details: ", JSON.parse(result.Data));
-            if (result.Status === 200) {
-                setproductdetails(JSON.parse(result.Data));
-
-            }
-
-        } catch (error) {
-
-            console.log("Error fetching product details : ", error);
-        }
+  const fetchProductDetails = async () => {
+    try {
+      const result = await apiServices.getInventoryDetails({ ProductName: name, WarehouseId: warehouseId });
+      if (result.Status === 200) {
+        setproductdetails(JSON.parse(result.Data));
+      }
+    } catch (error) {
+      console.log("Error fetching product details:", error);
     }
-
-    function toggleSideBar() {
-        setShowSidebar(true);
-    }
-
-    function closeSidebar() {
-        setShowSidebar(false);
-    }
-
-    const formatDate = (mssqlDate) => {
-        const date = new Date(mssqlDate);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = String(date.getFullYear()).slice(-2);
-        
-        return `${day}-${month}-${year}`;
-    };
-    const handleDrawerOpen = () => {
-    console.log('Drawer opened!');
   };
 
-    return (
-        <View style={styles.container}>
-            <AppBar title="Stock Flow" onMenuPress={toggleSideBar} />
+  const formatDate = (mssqlDate) => {
+    const date = new Date(mssqlDate);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = String(date.getFullYear()).slice(-2);
+    return `${day}-${month}-${year}`;
+  };
 
-            <View style={[styles.topDesignContainer, { height: height / 2.7 }]}> 
-                <View style={styles.productIconContainer}>
-                  <View style={styles.productNamePill}>
-                    <View style={styles.productAccentDot} />
-                    <Text style={styles.productName}>
-                        {productdetails.ProductName}
-                    </Text>
-                  </View>
-                </View>
-                <View style={styles.topInfoRow}>
-                    <View style={styles.topInfoCardSerial}>
-                        <Text style={styles.topInfoLabel}>Serial Number</Text>
-                        <Text style={styles.topInfoValue}>{productdetails.ProductSerialNumber}</Text>
-                    </View>
-                    <View style={styles.topInfoCardLocation}>
-                        <Text style={styles.topInfoLabel}>Location</Text>
-                        <Text style={styles.topInfoValue}>{productdetails.Location}</Text>
-                    </View>
-                </View>
-            </View>
+  return (
+    <View style={styles.container}>
+      <AppBar title="Product Details" onMenuPress={() => {}} />
 
-            <View style={styles.divider} />
-            <View style={styles.statsRow({ width })}>
-                <View style={styles.statCardCount}>
-                    <Text style={styles.statLabel}>Count</Text>
-                    <Text style={styles.statValueAccent}>{productdetails.Count}</Text>
-                </View>
-                <View style={styles.statCardBy}>
-                    <Text style={styles.statLabel}>Last Modified By</Text>
-                    <Text style={styles.statValueAccent}>{productdetails.Username || 'no one'}</Text>
-                </View>
-                <View style={styles.statCardOn}>
-                    <Text style={styles.statLabel}>Last Modified On</Text>
-                    <Text style={styles.statValueAccent}>{formatDate(productdetails.LastModifiedOn)}</Text>
-                </View>
-            </View>
-
-            <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-            </ScrollView>
-
-            <BottomNavigation onOpen={handleDrawerOpen} />
+      <View style={[styles.topContainer, { height: height / 2.7 }]}>
+        <View style={styles.productHeader}>
+          <View style={styles.productBadge}>
+            <View style={styles.accentDot} />
+            <Text style={styles.productTitle}>{productdetails.ProductName}</Text>
+          </View>
         </View>
-    );
+
+        <View style={styles.infoRow}>
+          <View style={styles.infoCard}>
+            <Text style={styles.label}>Serial Number</Text>
+            <Text style={styles.value}>{productdetails.ProductSerialNumber}</Text>
+          </View>
+          <View style={styles.infoCard}>
+            <Text style={styles.label}>Location</Text>
+            <Text style={styles.value}>{productdetails.Location}</Text>
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.divider} />
+
+      <View style={[styles.statsRow, { width }]}>
+        <View style={styles.statCard}>
+          <Text style={styles.label}>Count</Text>
+          <Text style={styles.statValue}>{productdetails.Count}</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.label}>Last Modified By</Text>
+          <Text style={styles.statValue}>{productdetails.Username || "No user"}</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.label}>Last Modified On</Text>
+          <Text style={styles.statValue}>{formatDate(productdetails.LastModifiedOn)}</Text>
+        </View>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} />
+
+      <BottomNavigation onOpen={() => {}} />
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
-    container: {
+  container: {
     flex: 1,
-    backgroundColor: '#f7fafd',
+    backgroundColor: "#f9fafc",
   },
-  topDesignContainer: {
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-    marginBottom: 8,
-    overflow: 'visible',
+  topContainer: {
+    justifyContent: "flex-end",
+    alignItems: "center",
+    backgroundColor: "#f9fafc",
     paddingTop: 32,
   },
-  productIconContainer: {
-    alignItems: 'center',
-    marginBottom: 0,
-    zIndex: 2,
+  productHeader: {
+    alignItems: "center",
+    marginBottom: 8,
   },
-  productNamePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#eaf2fb',
+  productBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#eaf3ff",
     borderRadius: 32,
     paddingHorizontal: 28,
     paddingVertical: 10,
-    marginBottom: 12,
-    shadowColor: '#b3c6e6',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
     elevation: 2,
+    shadowColor: "#b3c6e6",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
   },
-  productAccentDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#6ea8fe',
-    marginRight: 10,
+  accentDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#4e8df5",
+    marginRight: 8,
   },
-  productName: {
-    fontSize: 26,
-    fontWeight: '500',
-    color: '#222',
-    letterSpacing: 0.2,
-    textAlign: 'center',
-    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
+  productTitle: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: "#222",
+    letterSpacing: 0.3,
+  },
+  infoRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 12,
+    marginTop: 12,
+  },
+  infoCard: {
+    backgroundColor: "#fff",
+    borderRadius: 18,
+    padding: 16,
+    minWidth: 140,
+    alignItems: "center",
+    borderColor: "#e0eaf5",
+    borderWidth: 1,
+    elevation: 1,
+  },
+  label: {
+    fontSize: 13,
+    color: "#6c7a8a",
+    marginBottom: 4,
+  },
+  value: {
+    fontSize: 15,
+    color: "#222",
+    fontWeight: "500",
   },
   divider: {
     height: 1,
-    backgroundColor: '#e3eaf3',
+    backgroundColor: "#e1e9f2",
     marginHorizontal: 24,
     marginVertical: 18,
-    borderRadius: 1,
   },
-    content: {
-        padding: 16,
-        paddingBottom: 32,
-    },
-  topInfoRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    marginTop: 12,
-    marginBottom: 8,
-    zIndex: 2,
-    gap: 12,
-  },
-  topInfoCardSerial: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    paddingVertical: 14,
-    paddingHorizontal: 22,
-    marginHorizontal: 6,
-    alignItems: 'center',
-    minWidth: 120,
-    borderWidth: 1,
-    borderColor: '#e3eaf3',
-    elevation: 0,
-  },
-  topInfoCardLocation: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    paddingVertical: 14,
-    paddingHorizontal: 22,
-    marginHorizontal: 6,
-    alignItems: 'center',
-    minWidth: 120,
-    borderWidth: 1,
-    borderColor: '#e3eaf3',
-    elevation: 0,
-  },
-  topInfoLabel: {
-    color: '#7a8ca3',
-    fontWeight: '400',
-    fontSize: 13,
-    marginBottom: 2,
-    textAlign: 'center',
-    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
-  },
-  topInfoValue: {
-    color: '#222',
-    fontSize: 15,
-    fontWeight: '400',
-    textAlign: 'center',
-    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
-  },
-  statsRow: (props) => ({
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    marginTop: 8,
-    marginBottom: 8,
-    paddingHorizontal: 8,
-    gap: 10,
-    width: props && props.width ? props.width  : '90%',
-  }),
-  statCardCount: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    paddingVertical: 16,
+  statsRow: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
     paddingHorizontal: 16,
-    alignItems: 'center',
-    minWidth: 90,
-    marginHorizontal: 4,
-    borderWidth: 1,
-    borderColor: '#e3eaf3',
-    elevation: 0,
+    marginBottom: 12,
   },
-  statCardBy: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    minWidth: 90,
-    marginHorizontal: 4,
+  statCard: {
+    backgroundColor: "#fff",
+    borderRadius: 18,
+    padding: 16,
+    alignItems: "center",
+    minWidth: 100,
     borderWidth: 1,
-    borderColor: '#e3eaf3',
-    elevation: 0,
-  },
-  statCardOn: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    minWidth: 90,
-    marginHorizontal: 4,
-    borderWidth: 1,
-    borderColor: '#e3eaf3',
-    elevation: 0,
-  },
-  statLabel: {
-    color: '#7a8ca3',
-    fontWeight: '400',
-    fontSize: 12,
-    marginBottom: 2,
-    textAlign: 'center',
-    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
+    borderColor: "#e1e9f2",
   },
   statValue: {
-    color: '#222',
+    color: "#3a6ea8",
     fontSize: 14,
-    fontWeight: '400',
-    textAlign: 'center',
-    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
+    fontWeight: "600",
+    marginTop: 4,
   },
-  statValueAccent: {
-    color: '#3a6ea8',
-    fontSize: 15,
-    fontWeight: '500',
-    textAlign: 'center',
-    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
-    letterSpacing: 0.1,
-    marginTop: 2,
+  scrollContent: {
+    padding: 16,
+    paddingBottom: 32,
   },
 });
 

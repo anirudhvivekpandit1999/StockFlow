@@ -1,171 +1,201 @@
-import React, { useContext, useEffect } from "react";
-import { Modal, Button, Text, useTheme } from "react-native-paper";
-import { View, StyleSheet, useWindowDimensions, Alert } from "react-native";
-import { Formik } from "formik";
-import FormField from "./FormField";
-import { ScrollView } from "react-native-gesture-handler";
-import FormFieldNav from "./FormFieldNav";
-import apiServices from "../../services/apiServices";
-import {GlobalContext} from "../../services/GlobalContext";
+import React, { useContext, useEffect, useState } from "react";
+import { View, StyleSheet, ScrollView, Alert, Platform } from "react-native";
+import { Text, Button, TextInput, useTheme } from "react-native-paper";
+import { Formik, FieldArray } from "formik";
 
 const initialValues = {
-  serialNumber: "",
-  productName: "",
-  count: "",
+  payOrderNumber: "",
   client: "",
-  location: ""
+  clientAddress: "",
+  requestNumber: "",
+  deliveryNoteNumber: "",
+  deliveryDate: "",
+  warehouse: "",
+  soldTo: "",
+  soldToAddress: "",
+  deliverTo: "",
+  deliverToAddress: "",
+  description: "",
+  unit: "",
+  quantity: "",
+  serialNumbers: [],
+  remark: "",
+  tos: "",
+  customerStamp: "",
+  customerSignName: "",
+  customerSignDate: ""
 };
 
-const NewOutboundForm = ({ onDismiss }) => {
-  const { width } = useWindowDimensions();
+const NewDispatchScreen = ({ navigation }) => {
   const theme = useTheme();
-  const {userId , warehouseId} = useContext(GlobalContext);
+  const [formValues, setFormValues] = useState(initialValues);
+
+  useEffect(() => {
+    const qty = parseInt(formValues.quantity);
+    if (!isNaN(qty)) {
+      const currentLength = formValues.serialNumbers.length;
+      if (qty > currentLength) {
+        setFormValues(prev => ({
+          ...prev,
+          serialNumbers: [...prev.serialNumbers, ...Array(qty - currentLength).fill("")]
+        }));
+      } else if (qty < currentLength) {
+        setFormValues(prev => ({
+          ...prev,
+          serialNumbers: prev.serialNumbers.slice(0, qty)
+        }));
+      }
+    }
+  }, [formValues.quantity]);
+
+  const toLabel = key =>
+    key
+      .replace(/([A-Z])/g, " $1")
+      .replace(/^./, str => str.toUpperCase())
+      .replace("tos", "TOS");
 
   return (
-    <Modal
-      visible={true}
-      onDismiss={onDismiss}
-      dismissable={true}
-      contentContainerStyle={[
-        styles.modalContent,
-        { width: Math.min(width - 32, 400), zIndex: 9999 }
-      ]}
-      style={{ zIndex: 9999, elevation: 99 }}
-    >
+    <ScrollView contentContainerStyle={styles.container}>
       <Formik
-        initialValues={initialValues}
-        onSubmit={async values => {
-          var result = await apiServices.addNewForm({
-            ProductSerialNumber: values.serialNumber,
-            ProductName: values.productName,
-            Count: values.count,
-            Name: values.billto,
-            Location: values.shipto,
-            StockStatus: 'Dispatched',
-            UserId : userId , 
-            WarehouseId : warehouseId
-          });
-          Alert.alert(result[0].Message);
-          onDismiss();
+        enableReinitialize
+        initialValues={formValues}
+        onSubmit={values => {
+          Alert.alert("Form Submitted!", JSON.stringify(values, null, 2));
+          navigation.goBack();
         }}
       >
-        {({ handleSubmit, values, setFieldValue }) => {
-          useEffect(() => {
-            let isMounted = true;
-            const fetchAndSetProductName = async () => {
-              if (values.serialNumber) {
-                try {
-                  const response = await apiServices.getProductName({ ProductSerialNumber: values.serialNumber , WarehouseId: 1 });
-                  console.log("Product Name Response:", JSON.parse(response[0].Data).ProductName);
-                  if (isMounted) {
-                    if (response && response.length > 0) {
-                      setFieldValue('productName', JSON.parse(response[0].Data).ProductName);
-                    } else {
-                      setFieldValue('productName', '');
-                    }
-                  }
-                } catch (error) {
-                  if (isMounted) setFieldValue('productName', '');
-                }
-              } else {
-                if (isMounted) setFieldValue('productName', '');
-              }
-            };
-            fetchAndSetProductName();
-            return () => { isMounted = false; };
-          }, [values.serialNumber]);
+        {({ handleSubmit, values, handleChange, setFieldValue }) => (
+          <>
+            <Text style={styles.header}>New Dispatch Form</Text>
 
-          return (
-            <ScrollView style={styles.formContainer} showsVerticalScrollIndicator={false}>
-              <Text
-                style={{
-                  color: theme.colors.primary,
-                  fontWeight: "bold",
-                  textAlign: "center",
-                  fontSize: 20
+            {/* Pay Order Number + Auto-filled (simulate later) */}
+            <TextInput
+              label="Pay Order Number"
+              value={values.payOrderNumber}
+              onChangeText={text => {
+                setFieldValue("payOrderNumber", text);
+                setFieldValue("client", "Client XYZ");
+                setFieldValue("clientAddress", "123, Client Street");
+              }}
+              mode="outlined"
+              style={styles.input}
+            />
+
+            <TextInput
+              label="Client"
+              value={values.client}
+              mode="outlined"
+              style={styles.input}
+              disabled
+            />
+            <TextInput
+              label="Client Address"
+              value={values.clientAddress}
+              mode="outlined"
+              style={styles.input}
+              disabled
+            />
+
+            {/* Other inputs */}
+            {[
+              "requestNumber",
+              "deliveryNoteNumber",
+              "deliveryDate",
+              "warehouse",
+              "soldTo",
+              "soldToAddress",
+              "deliverTo",
+              "deliverToAddress",
+              "description",
+              "unit",
+              "quantity",
+              "remark",
+              "tos",
+              "customerStamp",
+              "customerSignName",
+              "customerSignDate"
+            ].map(field => (
+              <TextInput
+                key={field}
+                label={toLabel(field)}
+                value={values[field]}
+                onChangeText={text => {
+                  setFieldValue(field, text);
+                  if (field === "quantity") {
+                    setFormValues(prev => ({ ...prev, quantity: text }));
+                  }
                 }}
+                mode="outlined"
+                style={styles.input}
+              />
+            ))}
+
+            {/* Serial Number Inputs */}
+            {values.serialNumbers.map((serial, index) => (
+              <TextInput
+                key={index}
+                label={`Serial Number ${index + 1}`}
+                value={serial}
+                onChangeText={text => {
+                  const updatedSerials = [...values.serialNumbers];
+                  updatedSerials[index] = text;
+                  setFieldValue("serialNumbers", updatedSerials);
+                  setFormValues(prev => ({ ...prev, serialNumbers: updatedSerials }));
+                }}
+                mode="outlined"
+                style={styles.input}
+              />
+            ))}
+
+            {/* Submit / Cancel */}
+            <View style={styles.buttonRow}>
+              <Button
+                mode="outlined"
+                onPress={() => navigation.goBack()}
+                style={styles.button}
               >
-                New Dispatch Form
-              </Text>
-              <FormField
-                name="serialNumber"
-                label="Product Serial Number"
-                x="0"
-              />
-              <FormField
-                name="productName"
-                label="Product Name"
-                
-                x="0"
-              />
-              <FormField
-                name="count"
-                label="Count"
-                x="1"
-              />
-              <FormField
-                name="billto"
-                label="Bill To"
-              />
-              <FormField
-                name="shipto"
-                label="Ship To"
-              />
-              <View style={styles.buttonContainer}>
-                <Button
-                  mode="outlined"
-                  onPress={onDismiss}
-                  style={styles.button}
-                >
-                  <Text>Cancel</Text>
-                </Button>
-                <Button
-                  mode="contained"
-                  onPress={handleSubmit}
-                  style={styles.button}
-                >
-                  <Text>Submit</Text>
-                </Button>
-              </View>
-            </ScrollView>
-          );
-        }}
+                Cancel
+              </Button>
+              <Button
+                mode="contained"
+                onPress={handleSubmit}
+                style={styles.button}
+              >
+                Submit
+              </Button>
+            </View>
+          </>
+        )}
       </Formik>
-    </Modal>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  modalContent: {
-    backgroundColor: "#fafdff",
-    padding: 26,
-    borderRadius: 22,
-    margin: 16,
-    elevation: 0,
-    zIndex: 9999,
-    maxHeight: '80%',
-    shadowColor: '#b3c6e6',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    borderWidth: 1,
-    borderColor: '#e3eaf3',
+  container: {
+    padding: 20,
+    backgroundColor: "#f9f9ff"
   },
-  formContainer: {
-    gap: 16,
+  header: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#4169e1",
+    textAlign: "center",
+    marginBottom: 20
   },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: 14,
-    marginTop: 28,
+  input: {
+    marginBottom: 12
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 24
   },
   button: {
-    minWidth: 90,
-    borderRadius: 16,
-    fontWeight: '500',
-    fontFamily: Platform.OS === 'ios' ? 'San Francisco' : undefined,
-  },
+    flex: 1,
+    marginHorizontal: 8,
+    borderRadius: 10
+  }
 });
 
-export default NewOutboundForm;
+export default NewDispatchScreen;
